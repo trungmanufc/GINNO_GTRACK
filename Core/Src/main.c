@@ -57,10 +57,11 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 char *str = {0};
-uint8_t Rxdata;
+uint8_t Rx_data;
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-
+	HAL_ResumeTick();
+	HAL_UART_Receive_IT(&huart2, &Rx_data, 1);
 }
 /* USER CODE END 0 */
 
@@ -94,7 +95,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_UART_Receive_IT(&huart2, &Rx_data, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -104,6 +105,26 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  /* Blink LED a couple of time */
+	  	  for(int i = 0; i < 20; i++)
+	  	  {
+	  		  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+	  		  HAL_Delay(200);
+	  	  }
+	  str = "Going into Sleep Mode in 5 seconds \t \n";
+	  HAL_UART_Transmit(&huart2, (uint8_t*)str, strlen(str), HAL_MAX_DELAY);
+	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, 0);
+	  //HAL_Delay(1500);
+	  HAL_SuspendTick();
+	  /* just to indicated Sleep Mode is activated */
+	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, 1);
+	  /* Enter Sleep Mode NOW ... */
+	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+	  HAL_ResumeTick();
+	  str = "Wake up from Sleep Mode ";
+	  HAL_UART_Transmit(&huart2, (uint8_t*)str, strlen(str), HAL_MAX_DELAY);
+
+
   }
   /* USER CODE END 3 */
 }
