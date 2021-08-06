@@ -1,0 +1,6 @@
+SC7A20.c:16:9:SC7A20_Init	8	static
+SC7A20.c:53:6:SC7A20_coordinate_read	24	static
+SC7A20.c:65:13:SC7A20_write	32	static
+SC7A20.c:73:9:SC7A20_read	32	static
+SC7A20.c:86:13:SC7A20_setMotionTHS	16	static
+SC7A20.c:91:13:SC7A20_setInt1Duration	16	static
