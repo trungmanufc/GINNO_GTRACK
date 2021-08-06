@@ -105,12 +105,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  /* Blink LED a couple of time */
-	  	  for(int i = 0; i < 20; i++)
-	  	  {
-	  		  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
-	  		  HAL_Delay(200);
-	  	  }
+
 	  str = "Going into Sleep Mode in 5 seconds \t \n";
 	  HAL_UART_Transmit(&huart2, (uint8_t*)str, strlen(str), HAL_MAX_DELAY);
 	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, 0);
@@ -123,6 +118,12 @@ int main(void)
 	  HAL_ResumeTick();
 	  str = "Wake up from Sleep Mode ";
 	  HAL_UART_Transmit(&huart2, (uint8_t*)str, strlen(str), HAL_MAX_DELAY);
+
+	  for(int i = 0; i < 20; i++)
+	  {
+		  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+		  HAL_Delay(200);
+	  }
 
 
   }
