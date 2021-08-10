@@ -1,7 +1,7 @@
 Dependencies for Project 'W25Q16_F401', Target 'W25Q16_F401': (DO NOT MODIFY !)
 F (startup_stm32f401xc.s)(0x60EFF5FC)(--cpu Cortex-M4.fp -g --apcs=interwork --pd "__MICROLIB SETA 1"-I.\RTE\_W25Q16_F401-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include--pd "__UVISION_VERSION SETA 527" --pd "_RTE_ SETA 1" --pd "STM32F401xC SETA 1"--list startup_stm32f401xc.lst --xref -o w25q16_f401\startup_stm32f401xc.o --depend w25q16_f401\startup_stm32f401xc.d)
-F (..\Core\Src\w25q16.c)(0x60F01536)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_W25Q16_F401-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o w25q16_f401\w25q16.o --omf_browse w25q16_f401\w25q16.crf --depend w25q16_f401\w25q16.d)
-I (../Core/Inc/w25q16.h)(0x60F0145B)
+F (..\Core\Src\w25q16.c)(0x61122A8F)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_W25Q16_F401-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o w25q16_f401\w25q16.o --omf_browse w25q16_f401\w25q16.crf --depend w25q16_f401\w25q16.d)
+I (../Core/Inc/w25q16.h)(0x61122A95)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x60D02C04)
 I (../Core/Inc/stm32f4xx_hal_conf.h)(0x60EFF5F8)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h)(0x60D02C04)
@@ -33,7 +33,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x60D02C04)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599EDB3E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
-F (..\Core\Inc\w25q16.h)(0x60F0145B)()
+F (..\Core\Inc\w25q16.h)(0x61122A95)()
 F (../Core/Src/main.c)(0x60F01583)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_W25Q16_F401-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o w25q16_f401\main.o --omf_browse w25q16_f401\main.crf --depend w25q16_f401\main.d)
 I (../Core/Inc/main.h)(0x60EFF5F8)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x60D02C04)
@@ -65,7 +65,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x60D02C04)
-I (../Core/Inc/w25q16.h)(0x60F0145B)
+I (../Core/Inc/w25q16.h)(0x61122A95)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599EDB3E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
 F (../Core/Src/stm32f4xx_it.c)(0x60EFF5F7)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_W25Q16_F401-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o w25q16_f401\stm32f4xx_it.o --omf_browse w25q16_f401\stm32f4xx_it.crf --depend w25q16_f401\stm32f4xx_it.d)

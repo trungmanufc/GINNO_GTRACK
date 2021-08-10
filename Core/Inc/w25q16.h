@@ -13,10 +13,10 @@
 
 /***************Define for SPI****************/
 #define W25Q16_SPI				hspi2
-#define W25Q166_CS_PORT		GPIOB
+#define W25Q16_CS_PORT		GPIOB
 #define W25Q16_CS_PIN			GPIO_PIN_12
-#define	W25Q16_CS_EN			HAL_GPIO_WritePin(W25Q166_CS_PORT, W25Q16_CS_PIN, GPIO_PIN_RESET)
-#define	W25Q16_CS_DIS			HAL_GPIO_WritePin(W25Q166_CS_PORT, W25Q16_CS_PIN, GPIO_PIN_SET)
+#define	W25Q16_CS_EN			HAL_GPIO_WritePin(W25Q16_CS_PORT, W25Q16_CS_PIN, GPIO_PIN_RESET)
+#define	W25Q16_CS_DIS			HAL_GPIO_WritePin(W25Q16_CS_PORT, W25Q16_CS_PIN, GPIO_PIN_SET)
 
 /***************Define for instructions****************/
 #define DUMMY_BYTE				0xA5
@@ -209,7 +209,7 @@ void W25Q16_WriteByte(uint8_t data,
  * @param[in] pData: pointer to data buffer
  * @param[in] idPage: id of pages (0,1,...8191)
  * @param[in] number: number of datas to write
- * @param[in] offSet: offset value of address Page (byte)
+ * @param[in] offSet: offset value of start address (byte)
  */
 void W25Q16_WritePage(uint8_t* pData,
 											uint16_t idPage, uint8_t offSet, uint8_t number);
@@ -222,8 +222,8 @@ void W25Q16_WritePage(uint8_t* pData,
  * @param[in] number: number of datas to write (bytes)
  * @param[in] offSet: offset value of address Sector (byte)
  */
-void W25Q16_WriteSector(uint8_t* pData,
-												uint16_t idSector, uint8_t offSet, uint8_t number);
+//void W25Q16_WriteSector(uint8_t* pData,
+//												uint16_t idSector, uint8_t offSet, uint8_t number);
 
 /*!
  * @brief write data into a block
@@ -233,14 +233,14 @@ void W25Q16_WriteSector(uint8_t* pData,
  * @param[in] number: number of datas to write (bytes)
  * @param[in] offSet: offset value of address Block (byte)
  */
-void W25Q16_WriteBlock(uint8_t* pData,
-											 uint16_t idBlock, uint8_t offSet, uint8_t number);
+//void W25Q16_WriteBlock(uint8_t* pData,
+//											 uint16_t idBlock, uint8_t offSet, uint8_t number);
 
 /*!
  * @brief read a byte from flash
  *
  * @param[in] pBuffer: pointer to buffer to contain from flash
- * @param[in] addrToRead: address of byte to write
+ * @param[in] addrToRead: address of byte to read
  */
 void W25Q16_ReadByte(uint8_t* pBuffer,
 										 uint32_t addrToRead);
@@ -274,8 +274,8 @@ void W25Q16_ReadPage(uint8_t* pBuffer,
  * @param[in] number: number of bytes to read
  * @param[in] offSet: offset value of address Page (byte)
  */
-void W25Q16_ReadSector(uint8_t* pBuffer,
-											 uint32_t idSector, uint8_t offSet, uint32_t number);
+//void W25Q16_ReadSector(uint8_t* pBuffer,
+//											 uint32_t idSector, uint8_t offSet, uint32_t number);
 
 /*!
  * @brief read some bytes of sector from flash
@@ -285,8 +285,8 @@ void W25Q16_ReadSector(uint8_t* pBuffer,
  * @param[in] number: number of bytes to read
  * @param[in] offSet: offset value of address Block (byte)
  */
-void W25Q16_ReadBlock(uint8_t* pBuffer,
-										  uint32_t idBlock, uint8_t offSet, uint32_t number);
+//void W25Q16_ReadBlock(uint8_t* pBuffer,
+//										  uint32_t idBlock, uint8_t offSet, uint32_t number);
 
 #endif
 

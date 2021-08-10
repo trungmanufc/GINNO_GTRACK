@@ -95,7 +95,7 @@ void W25Q16_Enable_Write(void)
 		W25Q16_CS_EN;
 		W25Q16_Trans_Recv(WRITE_ENABLE);
 		W25Q16_CS_DIS;
-		HAL_Delay(1);
+		HAL_Delay(100);
 }
 
 /*!
@@ -457,7 +457,7 @@ void W25Q16_WriteByte(uint8_t data,
  * @param[in] pData: pointer to data buffer
  * @param[in] idPage: id of pages (0,1,...8191)
  * @param[in] number: number of datas to write 
- * @param[in] offSet: offset value of address Page (byte)
+ * @param[in] offSet: offset value of start address (byte)
  */
 void W25Q16_WritePage(uint8_t* pData,
 											uint16_t idPage, uint8_t offSet, uint8_t number)
@@ -500,7 +500,7 @@ void W25Q16_WritePage(uint8_t* pData,
  * @brief read a byte from flash
  *
  * @param[in] pBuffer: pointer to buffer to contain from flash
- * @param[in] addrToRead: address of byte to write
+ * @param[in] addrToRead: address of byte to read
  */
 void W25Q16_ReadByte(uint8_t* pBuffer,
 										 uint32_t addrToRead)
