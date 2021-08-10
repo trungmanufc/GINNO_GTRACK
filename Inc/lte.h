@@ -15,6 +15,9 @@
 #define RESET_CTRL_PORT 		GPIOB
 #define PWRKEY_CTRL_PIN 		GPIO_PIN_5
 #define PWRKEY_CTRL_PORT 		GPIOB
+#define LED_PORT						GPIOC
+#define LED_PWR							GPIO_PIN_7
+#define LED_GPS							GPIO_PIN_8
 
 /*Hard control Module LTE*/
 void Reset_LTE(void);
@@ -52,6 +55,8 @@ void Check_Baud_LTE(void);
   * @retval none
   */
 void Check_CPIN_LTE(void);
+
+/*SMS Functions relate*/
 
 /**
   * @brief  Select Text mode for SMS

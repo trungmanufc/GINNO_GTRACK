@@ -43,9 +43,9 @@ void Enable_LTE(void)
 
 void Blynk(void)
 {
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7|GPIO_PIN_8);	//on led
+		HAL_GPIO_TogglePin(LED_PORT, LED_PWR|LED_GPS);	//on led
 		HAL_Delay(200);
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7|GPIO_PIN_8);	//off led
+		HAL_GPIO_TogglePin(LED_PORT, LED_PWR|LED_GPS);	//off led
 		HAL_Delay(200);
 }
 
@@ -124,6 +124,8 @@ void Check_CPIN_LTE(void)
 		if(Recv_Response(&UartEmulHandle, 5000) == RESPONSE_OK) Log_Info((uint8_t*)"RES_OK\n", 7);
 				else Log_Info((uint8_t*)"RES_ERR\n", 8);
 }
+
+/*SMS Functions relate*/
 
 /**
   * @brief  Select Text mode for SMS
