@@ -1,11 +1,20 @@
 #ifndef __LTE_H
 #define __LTE_H
 
-#define MAX_WAIT_TIME 2000
-#define WAIT_OPEN			10000
-
 #include "soft_uart.h"
 #include <stdio.h>
+
+#define MAX_WAIT_TIME			 	2000
+#define WAIT_OPEN						10000
+
+#define PWR_EN_PIN 					GPIO_PIN_9
+#define PWR_EN_PORT					GPIOC
+#define WAKEUP_CTRL_PIN 		GPIO_PIN_3
+#define WAKEUP_CTRL_PORT 		GPIOB
+#define RESET_CTRL_PIN 			GPIO_PIN_4
+#define RESET_CTRL_PORT 		GPIOB
+#define PWRKEY_CTRL_PIN 		GPIO_PIN_5
+#define PWRKEY_CTRL_PORT 		GPIOB
 
 /*Hard control Module LTE*/
 void Reset_LTE(void);
