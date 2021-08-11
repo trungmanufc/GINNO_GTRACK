@@ -230,7 +230,8 @@ int main(void)
 	HAL_Delay(500);
 	Log_Info((uint8_t*)"ReadSomeByte\n", 13);
 	W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 16);
-//	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 16, g_read_buffer, 2);
+	/*Publish Raw data*/
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 16, g_read_buffer, 2);
 //	
 //	/*Test Write, Read Flash and pub data to Broker using Pointer*/
 //	W25Q16_Erase_Sector(0);
@@ -252,7 +253,7 @@ int main(void)
 //	W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 16);
 ////	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 16, g_read_buffer, 2);
 //	
-////	/*Test send string type to MQTT*/
+	/*Test send string type to MQTT*/
 	HAL_Delay(500);
 	g_gps_data.long_t.dLongRaw = 0;
 	g_gps_data.lat_t.dLatRaw = 0;
