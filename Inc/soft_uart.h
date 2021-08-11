@@ -7,13 +7,13 @@
 #define MAX_SIZE_BUFF 		256
 
 /**
-  * @brief  enum type for response from MEetval None
+  * @brief  enum type for response from ME
   */
 typedef enum 
 {
-		RESPONSE_ERR = 0U,
-		RESPONSE_OK,
-		RESPONSE_NEW_MSG
+		RESPONSE_ERR = 0U,	/*!<Response ERROR*/
+		RESPONSE_OK,				/*!<Response OK*/
+		RESPONSE_NEW_MSG		/*!<New SMS notice*/
 } response_t;
 
 /**

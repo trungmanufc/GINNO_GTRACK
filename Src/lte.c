@@ -300,7 +300,9 @@ response_t MQTT_Publish(uint8_t clientIndex,
 												uint8_t* topic, uint8_t lenData, uint8_t* pData, uint8_t lenOfLenData)
 {
 		HAL_Delay(MAX_WAIT_TIME);
-//		uint8_t lenBuffTrans = 23 + lenTopic + lenOfLenData;
+		if(lenData <= 9 ) lenOfLenData = 1;
+		else if(lenData > 9 && lenData < 100) lenOfLenData = 2;
+		else if(lenData >= 100) lenOfLenData = 3;
 		uint8_t lenBuffTrans = 23 + strlen((char*)topic) + lenOfLenData;
 		sprintf((char*) g_buff_temp, "0AT+QMTPUBEX=%d,%d,%d,%d,%s,%d\r", clientIndex, msgId, QoS, retain, topic, lenData);
 		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, lenBuffTrans);

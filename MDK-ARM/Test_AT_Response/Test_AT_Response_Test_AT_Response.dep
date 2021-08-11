@@ -36,7 +36,7 @@ I (../Inc/stm32f4xx_hal_uart_emul.h)(0x60F62EED)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
 F (..\Inc\stm32f4xx_hal_uart_emul.h)(0x60F62EED)()
 F (..\Src\soft_uart.c)(0x61056B01)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\soft_uart.o --omf_browse test_at_response\soft_uart.crf --depend test_at_response\soft_uart.d)
-I (../Inc/soft_uart.h)(0x61056B06)
+I (../Inc/soft_uart.h)(0x61127590)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x60D02C04)
 I (../Inc/stm32f4xx_hal_conf.h)(0x61123F60)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h)(0x60D02C04)
@@ -70,10 +70,10 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x60D02C04)
 I (../Inc/stm32f4xx_hal_uart_emul.h)(0x60F62EED)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
-F (..\Inc\soft_uart.h)(0x61056B06)()
-F (..\Src\lte.c)(0x611220DC)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\lte.o --omf_browse test_at_response\lte.crf --depend test_at_response\lte.d)
-I (../Inc/lte.h)(0x611220E8)
-I (../Inc/soft_uart.h)(0x61056B06)
+F (..\Inc\soft_uart.h)(0x61127590)()
+F (..\Src\lte.c)(0x61138FD4)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\lte.o --omf_browse test_at_response\lte.crf --depend test_at_response\lte.d)
+I (../Inc/lte.h)(0x61138EAC)
+I (../Inc/soft_uart.h)(0x61127590)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x60D02C04)
 I (../Inc/stm32f4xx_hal_conf.h)(0x61123F60)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h)(0x60D02C04)
@@ -108,9 +108,9 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x60D02C04)
 I (../Inc/stm32f4xx_hal_uart_emul.h)(0x60F62EED)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x599EDB3C)
-F (..\Inc\lte.h)(0x611220E8)()
-F (..\Src\w25q16.c)(0x6112402A)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\w25q16.o --omf_browse test_at_response\w25q16.crf --depend test_at_response\w25q16.d)
-I (../Inc/w25q16.h)(0x61124021)
+F (..\Inc\lte.h)(0x61138EAC)()
+F (..\Src\w25q16.c)(0x61138E97)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\w25q16.o --omf_browse test_at_response\w25q16.crf --depend test_at_response\w25q16.d)
+I (../Inc/w25q16.h)(0x61138E9E)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x60D02C04)
 I (../Inc/stm32f4xx_hal_conf.h)(0x61123F60)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h)(0x60D02C04)
@@ -144,9 +144,10 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x60D02C04)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599EDB3E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
+I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x599EDB3E)
 I (../Inc/stm32f4xx_hal_uart_emul.h)(0x60F62EED)
-F (..\Inc\w25q16.h)(0x61124021)()
-F (../Src/main.c)(0x611248CF)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\main.o --omf_browse test_at_response\main.crf --depend test_at_response\main.d)
+F (..\Inc\w25q16.h)(0x61138E9E)()
+F (../Src/main.c)(0x611392CD)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\main.o --omf_browse test_at_response\main.crf --depend test_at_response\main.d)
 I (../Inc/main.h)(0x61123F60)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x60D02C04)
 I (../Inc/stm32f4xx_hal_conf.h)(0x61123F60)
@@ -179,12 +180,13 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x60D02C04)
-I (../Inc/soft_uart.h)(0x61056B06)
+I (../Inc/soft_uart.h)(0x61127590)
 I (../Inc/stm32f4xx_hal_uart_emul.h)(0x60F62EED)
-I (../Inc/lte.h)(0x611220E8)
+I (../Inc/lte.h)(0x61138EAC)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
-I (../Inc/w25q16.h)(0x61124021)
+I (../Inc/w25q16.h)(0x61138E9E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599EDB3E)
+I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x599EDB3E)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x599EDB3C)
 F (../Src/stm32f4xx_it.c)(0x61123F5F)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\stm32f4xx_it.o --omf_browse test_at_response\stm32f4xx_it.crf --depend test_at_response\stm32f4xx_it.d)
 I (../Inc/main.h)(0x61123F60)
@@ -219,12 +221,13 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x60D02C04)
-I (../Inc/soft_uart.h)(0x61056B06)
+I (../Inc/soft_uart.h)(0x61127590)
 I (../Inc/stm32f4xx_hal_uart_emul.h)(0x60F62EED)
-I (../Inc/lte.h)(0x611220E8)
+I (../Inc/lte.h)(0x61138EAC)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
-I (../Inc/w25q16.h)(0x61124021)
+I (../Inc/w25q16.h)(0x61138E9E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599EDB3E)
+I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x599EDB3E)
 I (../Inc/stm32f4xx_it.h)(0x61123F5F)
 F (../Src/stm32f4xx_hal_msp.c)(0x61123F5F)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\stm32f4xx_hal_msp.o --omf_browse test_at_response\stm32f4xx_hal_msp.crf --depend test_at_response\stm32f4xx_hal_msp.d)
 I (../Inc/main.h)(0x61123F60)
@@ -259,12 +262,13 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x60D02C04)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x60D02C04)
-I (../Inc/soft_uart.h)(0x61056B06)
+I (../Inc/soft_uart.h)(0x61127590)
 I (../Inc/stm32f4xx_hal_uart_emul.h)(0x60F62EED)
-I (../Inc/lte.h)(0x611220E8)
+I (../Inc/lte.h)(0x61138EAC)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
-I (../Inc/w25q16.h)(0x61124021)
+I (../Inc/w25q16.h)(0x61138E9E)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x599EDB3E)
+I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x599EDB3E)
 F (../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c)(0x60D02C04)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\Inc-I.\RTE\_Test_AT_Response-IE:\Pack_ARM\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IE:\Pack_ARM\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="527" -D_RTE_ -DSTM32F401xC -DUSE_HAL_DRIVER -DSTM32F401xC-o test_at_response\stm32f4xx_hal_spi.o --omf_browse test_at_response\stm32f4xx_hal_spi.crf --depend test_at_response\stm32f4xx_hal_spi.d)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x60D02C04)
 I (../Inc/stm32f4xx_hal_conf.h)(0x61123F60)

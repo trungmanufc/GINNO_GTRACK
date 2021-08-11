@@ -638,4 +638,84 @@ void W25Q16_ReadPage(uint8_t* pBuffer,
 		myDevice.isBusy = IDLE;
 }
 
+/*Functions relate convert float to string*/
+
+/*!
+ * @brief reverse a string
+ *
+ * @param[in] str: pointer to input string
+ * @param[in] len: length of string
+ */
+void reverse(char* str, int len)
+{
+    int i = 0, j = len - 1, temp;
+    while (i < j) {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++;
+        j--;
+    }
+}
+
+/*!
+ * @brief convert a int number to string
+ *
+ * @param[in] inputNum: input number type int
+ * @param[in] str: buffer input to get string
+ * @param[in] numDigit: number of digits want to output
+ * @retval: number of digits output
+ */
+uint8_t intToStr(uint32_t inputNum, char* str, uint8_t numDigit)
+{
+    int i = 0;
+    while (inputNum) {
+        str[i++] = (inputNum % 10) + '0';
+        inputNum = inputNum / 10;
+    }
+
+    // If number of digits required is more, then
+    // add 0s at the beginning
+    while (i < numDigit)
+        str[i++] = '0';
+
+    reverse(str, i);
+    str[i] = '\0';
+    return i;
+}
+
+/*!
+ * @brief Converts a floating-point/double number to a string
+ *
+ * @param[in] number: input number type double/float
+ * @param[in] res: restrict to get string
+ * @param[in] afterPoint: number of digits want to after point
+ * @retval none
+ */
+void ftoa(double number, char* res, uint8_t afterPoint)
+{
+//		float* pDouble = (float*)number;
+//    // Extract integer part
+//    uint32_t ipart = (uint32_t)(*pDouble);
+//    // Extract floating part
+//    float fpart = *pDouble - (float)ipart;
+	 // Extract integer part
+    uint32_t ipart = (uint32_t)number;
+    // Extract floating part
+    double fpart = number - (double)ipart;
+    // convert integer part to string
+    uint8_t i = intToStr(ipart, res, 0);
+    // check for display option after point
+    if (afterPoint != 0) {
+        res[i] = '.'; // add dot
+
+        // Get the value of fraction part upto given no.
+        // of points after dot. The third parameter
+        // is needed to handle cases like 233.007
+        fpart = fpart * pow(10, afterPoint);
+
+        intToStr((uint32_t)fpart, res + i + 1, afterPoint);
+    }
+}
+
 /*EOF*/

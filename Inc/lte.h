@@ -26,6 +26,28 @@ void PWRCRL_OFF_LTE(void);
 void Enable_LTE(void);
 void Blynk(void);
 
+/**
+  * @brief  enum type for GPS
+  * @retval None
+  */
+typedef struct
+{
+    /*!<Longitude Field*/
+    union
+    {
+        double dLongRaw;    /*!<Raw data*/
+        uint8_t longBytes[8];
+    } long_t;
+
+    /*!<Latitude Field*/
+    union
+    {
+        double dLatRaw;     /*!<Raw data*/
+        uint8_t latBytes[8];
+    } lat_t;
+
+} GPS_t;
+
 /*Control Module LTE*/
 
 /**

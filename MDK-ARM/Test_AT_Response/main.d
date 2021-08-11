@@ -38,4 +38,5 @@ test_at_response\main.o: ../Inc/lte.h
 test_at_response\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 test_at_response\main.o: ../Inc/w25q16.h
 test_at_response\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+test_at_response\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 test_at_response\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

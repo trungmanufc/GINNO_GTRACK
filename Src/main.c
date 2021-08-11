@@ -59,19 +59,27 @@ UART_Emul_HandleTypeDef UartEmulHandle;
 uint8_t g_buffer_log[30] = {0};
 
 /*global variables for LTE module*/
-response_t g_check_new_msg = RESPONSE_ERR;
-uint8_t g_recv_byte = 0, g_count = 0, g_count_temp = 0;  
-uint8_t g_isDone = RX_FALSE, g_check_end = 1;
-uint8_t g_recv_buff[MAX_SIZE_BUFF] = {0};
-uint8_t g_buff_temp[MAX_SIZE_BUFF] = {0};
-uint8_t g_id_msg = 0, g_size_sms = 0, g_size_IP = 0;
-uint32_t g_timeNow = 0;
+response_t 	g_check_new_msg = RESPONSE_ERR;
+uint8_t    	g_recv_byte = 0, g_count = 0, g_count_temp = 0;  
+uint8_t 		g_isDone = RX_FALSE, g_check_end = 1;
+uint8_t 		g_recv_buff[MAX_SIZE_BUFF] = {0};
+uint8_t 		g_buff_temp[MAX_SIZE_BUFF] = {0};
+uint8_t 		g_id_msg = 0, g_size_sms = 0, g_size_IP = 0;
+uint32_t 		g_timeNow = 0;
 
 /*global variables for Flash module*/
-uint8_t g_write_buffer[MAX_SIZE_BUFF] = {0};
-uint8_t g_read_buffer[MAX_SIZE_BUFF] = {0};
-uint8_t g_data_write = 0x89;
-uint8_t g_data_read = 0;
+uint8_t 		g_write_buffer[MAX_SIZE_BUFF] = {0};
+uint8_t		 	g_read_buffer[MAX_SIZE_BUFF] = {0};
+uint8_t 		g_data_write = 0x89;
+uint8_t 		g_data_read = 0;
+GPS_t   		g_gps_data = {0};
+uint8_t* 		g_pLong = NULL;
+uint8_t*		g_pLat = NULL;
+//test value of longitude, latitude
+double 			g_long = 1234.456789;
+double 			g_lat  = 3214.876543;
+float* 			g_pFloat = 0;
+char 				g_buff_send[30] = {0};
 
 /* USER CODE END PV */
 
@@ -189,17 +197,80 @@ int main(void)
 //	Select_ME_Memory();
 //	/*Delete ME Memory store sms*/
 //	Delete_Memory_SMS();
+	
 #if TEST_MQTT == 1
+	
 	MQTT_Recv_Mode(0, 0, 1);
 	MQTT_Session(0, 0);
 	
 	if(MQTT_Open(0, (uint8_t*)"www.maqiatto.com", 1883) == RESPONSE_OK) 
 	{
 			MQTT_Connect(0, 0, (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
-			MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 10, g_read_buffer, 2);
+//			MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 10, g_read_buffer, 2);
 			HAL_Delay(1000);
-			MQTT_Publish(0, 1, 1, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 5, (uint8_t*)"12345", 1);
+			MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 5, (uint8_t*)"12345", 1);
 	}
+	
+	/*Test Write, Read Flash and pub data to Broker using Union*/
+	W25Q16_Erase_Sector(0);
+	g_gps_data.long_t.dLongRaw = g_long;
+	g_gps_data.lat_t.dLatRaw = g_lat;
+	
+	Log_Info((uint8_t*)"Write Data\n", 11);
+	for(uint8_t i = 0; i < 8; i++)
+	{
+			g_write_buffer[i] = g_gps_data.long_t.longBytes[i];
+	}
+	for(uint8_t i = 8; i < 16; i++)
+	{
+			g_write_buffer[i] = g_gps_data.lat_t.latBytes[i - 8];
+	}
+	W25Q16_WritePage(g_write_buffer, 0, 0x00, 16);
+	
+	HAL_Delay(500);
+	Log_Info((uint8_t*)"ReadSomeByte\n", 13);
+	W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 16);
+//	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 16, g_read_buffer, 2);
+//	
+//	/*Test Write, Read Flash and pub data to Broker using Pointer*/
+//	W25Q16_Erase_Sector(0);
+//	g_pLong = (uint8_t*)&g_long;
+//	g_pLat = (uint8_t*)&g_lat;
+//	Log_Info((uint8_t*)"Write Data\n", 11);
+//	for(uint8_t i = 0; i < 8; i++)
+//	{
+//			g_write_buffer[i] = *(g_pLong + i);
+//	}
+//	for(uint8_t i = 8; i < 16; i++)
+//	{
+//			g_write_buffer[i] = *(g_pLat + i - 8);
+//	}
+//	W25Q16_WritePage(g_write_buffer, 0, 0x00, 16);
+//	
+//	HAL_Delay(500);
+//	Log_Info((uint8_t*)"ReadSomeByte\n", 13);
+//	W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 16);
+////	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 16, g_read_buffer, 2);
+//	
+////	/*Test send string type to MQTT*/
+	HAL_Delay(500);
+	g_gps_data.long_t.dLongRaw = 0;
+	g_gps_data.lat_t.dLatRaw = 0;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+			g_gps_data.long_t.longBytes[i] = g_read_buffer[i];
+	}
+	ftoa(g_gps_data.long_t.dLongRaw, g_buff_send, 6);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", strlen(g_buff_send), (uint8_t*)g_buff_send, 2);
+	
+	for(uint8_t i = 0; i < 8; i++)
+	{
+			g_gps_data.lat_t.latBytes[i] = g_read_buffer[i+8];
+	}
+	ftoa(g_gps_data.lat_t.dLatRaw, g_buff_send, 6);
+
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", strlen(g_buff_send), (uint8_t*)g_buff_send, 2);
+
 #endif
 
 #if TEST_HTTP == 1

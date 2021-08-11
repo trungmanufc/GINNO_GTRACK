@@ -4,6 +4,7 @@
 #include "stm32f4xx_hal.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <math.h>
 
 /***************Define for Debug****************/
 #define DEBUG					0
@@ -287,6 +288,38 @@ void W25Q16_ReadPage(uint8_t* pBuffer,
  */
 //void W25Q16_ReadBlock(uint8_t* pBuffer,
 //										  uint32_t idBlock, uint8_t offSet, uint32_t number);
+
+
+/*Functions relate convert float to string*/
+
+/*!
+ * @brief reverse a string
+ *
+ * @param[in] str: pointer to input string
+ * @param[in] len: length of string
+ * @retval: none
+ */
+void reverse(char* str, int len);
+
+/*!
+ * @brief convert a int number to string
+ *
+ * @param[in] inputNum: input number type int
+ * @param[in] str: buffer input to get string
+ * @param[in] numDigit: number of digits want to output
+ * @retval: number of digits output
+ */
+uint8_t intToStr(uint32_t inputNum, char* str, uint8_t numDigit);
+
+/*!
+ * @brief Converts a floating-point/double number to a string
+ *
+ * @param[in] number: input number type double/float
+ * @param[in] res: restrict to get string
+ * @param[in] afterPoint: number of digits want to after point
+ * @retval none
+ */
+void ftoa(double number, char* res, uint8_t afterPoint);
 
 #endif
 
