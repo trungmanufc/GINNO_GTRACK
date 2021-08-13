@@ -42,6 +42,7 @@
 #define TEST_TX 				0
 #define TEST_RESPONSE		1
 #define TEST_MQTT 			1
+#define TEST_MQTT_SSL		1
 #define TEST_HTTP 			0
 #define TEST_FLASH 			1
 /* USER CODE END PM */
@@ -57,14 +58,15 @@ UART_HandleTypeDef huart1;
 
 UART_Emul_HandleTypeDef UartEmulHandle;
 uint8_t g_buffer_log[30] = {0};
+response_t g_flag = RESPONSE_ERR;
 
 /*global variables for LTE module*/
-response_t 	g_check_new_msg = RESPONSE_ERR;
 uint8_t    	g_recv_byte = 0, g_count = 0, g_count_temp = 0;  
 uint8_t 		g_isDone = RX_FALSE, g_check_end = 1;
 uint8_t 		g_recv_buff[MAX_SIZE_BUFF] = {0};
 uint8_t 		g_buff_temp[MAX_SIZE_BUFF] = {0};
 uint8_t 		g_id_msg = 0, g_size_sms = 0, g_size_IP = 0;
+uint8_t 		g_mqtt_isOn = OFF;
 uint32_t 		g_timeNow = 0;
 
 /*global variables for Flash module*/
@@ -73,8 +75,7 @@ uint8_t		 	g_read_buffer[MAX_SIZE_BUFF] = {0};
 uint8_t 		g_data_write = 0x89;
 uint8_t 		g_data_read = 0;
 GPS_t   		g_gps_data = {0};
-uint8_t* 		g_pLong = NULL;
-uint8_t*		g_pLat = NULL;
+
 //test value of longitude, latitude
 double 			g_long = 1234.456789;
 double 			g_lat  = 3214.876543;
@@ -95,7 +96,36 @@ static void MX_SPI2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+response_t MQTT_Open_Connect(void)
+{	
+	g_flag = RESPONSE_ERR;
+	/*wait to open network port 8883*/
+	while(g_flag == RESPONSE_ERR)
+	{
+			#if TEST_MQTT_SSL == 1
+			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+			#else
+			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);	
+			#endif	
+	}
+	g_mqtt_isOn = ON;
+		
+	/*wait to connect to broker*/
+	g_flag = RESPONSE_ERR;
+	g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+	while(g_flag != RESPONSE_OK)
+	{
+			//Reopen network and reconnect
+			#if TEST_MQTT_SSL == 1			
+			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+			#else
+			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);
+			#endif
+			g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+	}
+	g_flag = RESPONSE_ERR; 
+	return RESPONSE_OK;
+}
 /* USER CODE END 0 */
 
 /**
@@ -198,19 +228,64 @@ int main(void)
 //	/*Delete ME Memory store sms*/
 //	Delete_Memory_SMS();
 	
-#if TEST_MQTT == 1
+	#if TEST_MQTT == 1
 	
 	MQTT_Recv_Mode(0, 0, 1);
 	MQTT_Session(0, 0);
-	
-	if(MQTT_Open(0, (uint8_t*)"www.maqiatto.com", 1883) == RESPONSE_OK) 
+
+	#if TEST_MQTT_SSL == 1
+	/*Connect with SSL*/
+	MQTT_SSL_Mode(0, 1, 0);
+	MQTT_SSL_Certificate(0);
+	MQTT_SSL_Level(0, 0);
+	MQTT_SSL_Version(0, 4);
+	MQTT_SSL_Ciphersuite(0, (uint8_t*)"0xFFFF");
+	MQTT_SSL_Ignore(0, 1);
+		#endif	
+//	/*wait to open network port 8883*/
+//	while(g_flag == RESPONSE_ERR)
+//	{
+//			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+//	}
+//	g_mqtt_isOn = ON;
+//	
+//	#else
+//	/*Connect without SSL*/
+//	/*wait to open network port 1883*/
+//	while(g_flag == RESPONSE_ERR)
+//	{
+////			g_flag = MQTT_Open(0, (uint8_t*)"www.maqiatto.com", 1883);
+//			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);		
+//	}
+//	g_mqtt_isOn = ON;
+
+//	/*wait to connect to broker*/
+//	g_flag = RESPONSE_ERR;
+//	g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+////	if(g_flag == RESPONSE_MQTT_CLOSE)	MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+//	while(g_flag != RESPONSE_OK)
+//	{
+//			//Reopen network and reconnect
+//			#if TEST_MQTT_SSL == 1			
+//			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+//			#else
+//			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);
+//			#endif
+//			g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+//	}
+//	g_flag = RESPONSE_ERR; 
+	if(MQTT_Check_Connect() != RESPONSE_OK)
 	{
-			MQTT_Connect(0, 0, (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
-//			MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 10, g_read_buffer, 2);
-			HAL_Delay(1000);
-			MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 5, (uint8_t*)"12345", 1);
+			MQTT_Open_Connect();
 	}
-	
+	HAL_Delay(1000);
+	/*Test Pub data*/
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", 5, (uint8_t*)"12345");
+		
+	/*Pub data from flash*/
+	HAL_Delay(1000);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", 10, g_read_buffer);
+
 	/*Test Write, Read Flash and pub data to Broker using Union*/
 	W25Q16_Erase_Sector(0);
 	g_gps_data.long_t.dLongRaw = g_long;
@@ -231,28 +306,8 @@ int main(void)
 	Log_Info((uint8_t*)"ReadSomeByte\n", 13);
 	W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 16);
 	/*Publish Raw data*/
-	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 16, g_read_buffer, 2);
-//	
-//	/*Test Write, Read Flash and pub data to Broker using Pointer*/
-//	W25Q16_Erase_Sector(0);
-//	g_pLong = (uint8_t*)&g_long;
-//	g_pLat = (uint8_t*)&g_lat;
-//	Log_Info((uint8_t*)"Write Data\n", 11);
-//	for(uint8_t i = 0; i < 8; i++)
-//	{
-//			g_write_buffer[i] = *(g_pLong + i);
-//	}
-//	for(uint8_t i = 8; i < 16; i++)
-//	{
-//			g_write_buffer[i] = *(g_pLat + i - 8);
-//	}
-//	W25Q16_WritePage(g_write_buffer, 0, 0x00, 16);
-//	
-//	HAL_Delay(500);
-//	Log_Info((uint8_t*)"ReadSomeByte\n", 13);
-//	W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 16);
-////	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", 16, g_read_buffer, 2);
-//	
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", 16, g_read_buffer);
+	
 	/*Test send string type to MQTT*/
 	HAL_Delay(500);
 	g_gps_data.long_t.dLongRaw = 0;
@@ -262,7 +317,7 @@ int main(void)
 			g_gps_data.long_t.longBytes[i] = g_read_buffer[i];
 	}
 	ftoa(g_gps_data.long_t.dLongRaw, g_buff_send, 6);
-	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", strlen(g_buff_send), (uint8_t*)g_buff_send, 2);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
 	
 	for(uint8_t i = 0; i < 8; i++)
 	{
@@ -270,11 +325,11 @@ int main(void)
 	}
 	ftoa(g_gps_data.lat_t.dLatRaw, g_buff_send, 6);
 
-	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/RGB_Blue", strlen(g_buff_send), (uint8_t*)g_buff_send, 2);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
 
-#endif
+	#endif
 
-#if TEST_HTTP == 1
+	#if TEST_HTTP == 1
 	HAL_Delay(3000);
 	HTTP_Config_ID(1);
 //		HTTP_Enable_Request(1);
@@ -287,15 +342,16 @@ int main(void)
 	
 	g_size_IP = HTTP_Ping_IP(1, (uint8_t*)"demo.traccar.org", g_buff_temp);
 	if(g_size_IP != 0) Log_Info(g_buff_temp, g_size_IP);
-#endif
+	#endif
 
 #endif
 
   while (1)
   {	
 #if TEST_RESPONSE == 1
+		g_flag = Recv_Response_Continue(&UartEmulHandle, 300);
 		
-		if(Recv_Response_Continue(&UartEmulHandle, 300) == RESPONSE_NEW_MSG) //if receive a notice for new sms
+		if(g_flag == RESPONSE_NEW_MSG) //if receive a notice for new sms
 		{
 				Log_Info((uint8_t*)"RES_MSG\n", 8);	
 				memset(g_buff_temp, '\0', MAX_SIZE_BUFF);
@@ -313,7 +369,12 @@ int main(void)
 				}
 				Delete_Memory_SMS();
 		}
-//		Blynk();
+//		if(MQTT_Check_Connect() != RESPONSE_OK)
+//		{
+//				MQTT_Open_Connect();
+//		}
+
+		
 #endif
 
 #if TEST_RX == 1

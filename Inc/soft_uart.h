@@ -11,9 +11,11 @@
   */
 typedef enum 
 {
-		RESPONSE_ERR = 0U,	/*!<Response ERROR*/
-		RESPONSE_OK,				/*!<Response OK*/
-		RESPONSE_NEW_MSG		/*!<New SMS notice*/
+		RESPONSE_ERR = 0U,		/*!<Response ERROR*/
+		RESPONSE_OK,					/*!<Response OK*/
+		RESPONSE_NEW_MSG,			/*!<New SMS notice*/
+		RESPONSE_MQTT_CLOSE,	/*!<MQTT close notice notice*/
+		RESPONSE_MQTT_EXIST
 } response_t;
 
 /**
@@ -54,7 +56,14 @@ uint8_t Compare_Str(uint8_t* str1, uint8_t* str2, uint8_t len);
   * @param  strInput: pointer to addres of string input
   * @retval true(1) or false(0)
   */
-uint8_t Confirm_OK(uint8_t* strInput);
+uint8_t Confirm_OK(uint8_t* inputStr);
+
+/**
+  * @brief  Check response from UART, if MQTT Status is close
+	* @param  inputStr: pointer to input string
+  * @retval true(1) or false(0)
+  */
+uint8_t Check_MQTT(uint8_t* inputStr);
 
 /**
   * @brief  Receive a string 

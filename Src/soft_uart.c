@@ -113,12 +113,23 @@ uint8_t Compare_Str(uint8_t* str1, uint8_t* str2, uint8_t len)
 
 /**
   * @brief  Compare string with "\r\nOK\r\n" 
-  * @param  strInput: pointer to addres of string input
+  * @param  inputStr: pointer to addres of string input
   * @retval true(1) or false(0)
   */
-uint8_t Confirm_OK(uint8_t* strInput)
+uint8_t Confirm_OK(uint8_t* inputStr)
 {
-		if(Compare_Str(strInput, (uint8_t*)"\r\nOK\r\n", 6)) return 1;
+		if(Compare_Str(inputStr, (uint8_t*)"\r\nOK\r\n", 6)) return 1;
+		return 0;
+}
+
+/**
+  * @brief  Check response from UART, if MQTT Status is close
+	* @param  inputStr: pointer to input string
+  * @retval true(1) or false(0)
+  */
+uint8_t Check_MQTT(uint8_t* inputStr)
+{
+		if(Compare_Str(inputStr, (uint8_t*)"\r\n+QMTSTAT: 0,1\r\n", 17)) return 1;
 		return 0;
 }
 
@@ -146,6 +157,10 @@ response_t Recv_Response(UART_Emul_HandleTypeDef *huart, uint32_t timeOut)
 			if(Check_New_Msg(g_recv_buff))	//if response start by "\r\n+CTMI"
 			{
 				retValue = RESPONSE_NEW_MSG;
+			}
+			if(Check_MQTT(&g_recv_buff[g_count-17]))
+			{
+					retValue = RESPONSE_MQTT_CLOSE;
 			}
 			g_count_temp = g_count;	//pass value of 'g_count' into 'g_count_temp' to use in user file
 			g_count = 0;
@@ -199,11 +214,15 @@ response_t Recv_Response_Continue(UART_Emul_HandleTypeDef *huart, uint32_t timeO
 			
 			if(Confirm_OK(&g_recv_buff[g_count-6])) //if response stop by "\r\nOK\r\n"
 			{
-				retValue = RESPONSE_OK;
+					retValue = RESPONSE_OK;
 			}
 			if(Check_New_Msg(g_recv_buff))	//if response start by "\r\n+CTMI"
 			{
-				retValue = RESPONSE_NEW_MSG;
+					retValue = RESPONSE_NEW_MSG;
+			}
+			if(Check_MQTT(&g_recv_buff[g_count-17]))
+			{
+					retValue = RESPONSE_MQTT_CLOSE;
 			}
 			g_count_temp = g_count;	//pass value of 'g_count' into 'g_count_temp' to use in user file
 			g_count = 0;
@@ -284,5 +303,7 @@ uint8_t Get_Data_Msg(uint8_t* inputStr, uint8_t* outputStr, uint8_t sizeResponse
     Log_Info(outputStr, sizeDataMsg);
 		return sizeDataMsg;
 }
+
+
 
 /*End of file*/

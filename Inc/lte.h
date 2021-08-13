@@ -5,7 +5,8 @@
 #include <stdio.h>
 
 #define MAX_WAIT_TIME			 	2000
-#define WAIT_OPEN						10000
+#define WAIT_OPEN						5000
+#define WAIT_CONNECT				5000
 
 #define PWR_EN_PIN 					GPIO_PIN_9
 #define PWR_EN_PORT					GPIOC
@@ -47,6 +48,15 @@ typedef struct
     } lat_t;
 
 } GPS_t;
+
+/**
+  * @brief  enum type for MQTT status
+  */
+typedef enum
+{
+		OFF = 0,	/*!<MQTT Status is OFF*/
+		ON				/*!<MQTT Status is ON*/
+} mqttStatus_t;
 
 /*Control Module LTE*/
 
@@ -142,23 +152,81 @@ response_t MQTT_Open(uint8_t clientIndex,
   * @retval OK or ERR
   */
 response_t MQTT_Connect(uint8_t clientIndex,
-												uint8_t clientID, uint8_t* userName, uint8_t* passWord);
-												
+												uint8_t* clientID, uint8_t* userName, uint8_t* passWord);
+
 /**
-  * @brief  Connect a Client to MQTT Server
+  * @brief  Check MQTT Connect
+  * @retval OK or ERR
+  */
+response_t MQTT_Check_Connect(void);
+
+/**
+  * @brief  Publish data to MQTT Topic
 	* @param  msgId: Message identifier of packet. Range: 0–65535. It will be 0 only when QoS = 0
 	* @param  QoS: The QoS level at which the client wants to publish the messages (0-2)
 	* @param  retain: retain the message after it has been delivered to the current subscribers (0 or 1)
 	* @param  topic: topic to publish
 	* @param  lenData: length of data to publish
 	* @param  pData: pointer to data buffer
-	* @param  lenOfLenData: numbers of digit of lendata (1,2,3,4...)
   * @retval OK or ERR
   */
 response_t MQTT_Publish(uint8_t clientIndex,
 												uint8_t msgId, uint8_t QoS, uint8_t retain, 
-												uint8_t* topic, uint8_t lenData, uint8_t* pData, uint8_t lenOfLenData);
+												uint8_t* topic, uint8_t lenData, uint8_t* pData);
 
+/**
+  * @brief  Select SSL Mode
+	* @param  clientIndex: MQTT client identifier (0-5)
+	* @param  mode: 0(disable SSL) or 1 (enable SSL)
+  * @param  sslIndex: SSL context index (0-5)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Mode(uint8_t clientIndex,
+												 uint8_t mode, uint8_t sslIndex);
+	
+/**
+  * @brief  Config Certificates of SSL from file in UFS
+	* @param  sslIndex: SSL context index (0-5)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Certificate(uint8_t sslIndex);
+
+/**
+  * @brief  Select SSL level
+  * @param  sslIndex: SSL context index (0-5)
+  * @param  level: SSL level (0-2)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Level(uint8_t sslIndex,
+												  uint8_t level);
+
+/**
+  * @brief  Select SSL version
+  * @param  sslIndex: SSL context index (0-5)
+  * @param  version: SSL version (0-4)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Version(uint8_t sslIndex,
+												    uint8_t version);
+
+/**
+  * @brief  Config ignore validity check for certification
+  * @param  sslIndex: SSL context index (0-5)
+  * @param  cipherSuite: string type format 0xYYYY
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Ciphersuite(uint8_t sslIndex,
+																uint8_t* cipherSuite);
+																
+/**
+  * @brief  Config ignore validity check for certification
+  * @param  sslIndex: SSL context index (0-5)
+  * @param  ignoreltime: 0 (care about validity check for certificate) or 1 (ignore)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Ignore(uint8_t sslIndex,
+													 uint8_t ignoreltime);
+													 
 /***************HTTP Relate functions****************/
 
 /**

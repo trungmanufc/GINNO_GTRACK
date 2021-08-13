@@ -153,32 +153,37 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_read_buffer</ItemText>
+          <ItemText>g_gps_data.long_t.dLongRaw</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_gps_data.long_t.dLongRaw</ItemText>
+          <ItemText>g_lat,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_lat,0x0A</ItemText>
+          <ItemText>g_long,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_long,0x0A</ItemText>
+          <ItemText>g_p32</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_p32</ItemText>
+          <ItemText>g_gps_data.lat_t.dLatRaw</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_gps_data.lat_t.dLatRaw</ItemText>
+          <ItemText>g_count_temp,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>g_recv_buff</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -186,6 +191,11 @@
           <count>0</count>
           <WinNumber>2</WinNumber>
           <ItemText>g_write_buffer</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>g_buff_temp</ItemText>
         </Ww>
       </WatchWindow2>
       <Tracepoint>

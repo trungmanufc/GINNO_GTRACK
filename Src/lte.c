@@ -250,6 +250,12 @@ response_t MQTT_Open(uint8_t clientIndex,
 				HAL_Delay(MAX_WAIT_TIME);
 				return RESPONSE_OK;
 		}
+		if(Compare_Str(g_buff_temp, (uint8_t*)"2", 1))
+		{
+				Log_Info((uint8_t*)"Open Before!\n", 13);
+				HAL_Delay(MAX_WAIT_TIME);
+				return RESPONSE_MQTT_EXIST;
+		}
 		HAL_Delay(MAX_WAIT_TIME);
 		return RESPONSE_ERR;
 }
@@ -263,15 +269,20 @@ response_t MQTT_Open(uint8_t clientIndex,
   * @retval OK or ERR
   */
 response_t MQTT_Connect(uint8_t clientIndex,
-												uint8_t clientID, uint8_t* userName, uint8_t* passWord)
+												uint8_t* clientID, uint8_t* userName, uint8_t* passWord)
 {
 		HAL_Delay(MAX_WAIT_TIME);
 //		uint8_t lenBuffTrans = 18 + lenUser + lenPass;
-		uint8_t lenBuffTrans = 18 + strlen((char*)userName) + strlen((char*)passWord);
-		sprintf((char*) g_buff_temp, "0AT+QMTCONN=%d,%d,%s,%s\r", clientIndex, clientID, userName, passWord);
+		uint8_t lenBuffTrans = 17 + strlen((char*)clientID) + strlen((char*)userName) + strlen((char*)passWord);
+		sprintf((char*) g_buff_temp, "0AT+QMTCONN=%d,%s,%s,%s\r", clientIndex, clientID, userName, passWord);
 		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, lenBuffTrans);
 		/*wait response of +QMTCONN*/
-		Recv_Response(&UartEmulHandle, MAX_WAIT_TIME);
+		if(Recv_Response(&UartEmulHandle, WAIT_CONNECT) == RESPONSE_MQTT_CLOSE) 
+		{
+				Log_Info((uint8_t*)"CONNECT-CLOSE\n", 14);
+				HAL_Delay(MAX_WAIT_TIME);
+				return RESPONSE_MQTT_CLOSE;
+		}
 		Get_Paragraph(g_buff_temp, g_recv_buff, g_count_temp - 3, g_count_temp - 3);
 		if(Compare_Str(g_buff_temp, (uint8_t*)"0", 1))
 		{
@@ -282,9 +293,31 @@ response_t MQTT_Connect(uint8_t clientIndex,
 		HAL_Delay(MAX_WAIT_TIME);
 		return RESPONSE_ERR;
 }
-
 /**
-  * @brief  Connect a Client to MQTT Server
+  * @brief  Check MQTT Connect
+  * @retval OK or ERR
+  */
+response_t MQTT_Check_Connect(void)
+{
+		Trans_Data(&UartEmulHandle, (uint8_t*)"0AT+QMTCONN?\r", 13);
+		Recv_Response(&UartEmulHandle, 300);
+		if(g_count_temp < 20)
+		{
+				Log_Info((uint8_t*)"Not connect!\n", 13);
+				HAL_Delay(MAX_WAIT_TIME);
+				return RESPONSE_ERR; //not connect
+		}
+		Get_Paragraph(g_buff_temp, g_recv_buff, 26, 26);
+		if(Compare_Str(g_buff_temp, (uint8_t*)"3", 1))
+		{
+				Log_Info((uint8_t*)"Connect Exist!\n", 15);
+				HAL_Delay(MAX_WAIT_TIME);
+				return RESPONSE_OK;
+		}
+		return RESPONSE_ERR; //not connect
+}
+/**
+  * @brief  Publish data to MQTT Topic
 	* @param  msgId: Message identifier of packet. Range: 0–65535. It will be 0 only when QoS = 0
 	* @param  QoS: The QoS level at which the client wants to publish the messages (0-2)
 	* @param  retain: retain the message after it has been delivered to the current subscribers (0 or 1)
@@ -292,14 +325,14 @@ response_t MQTT_Connect(uint8_t clientIndex,
 	* @param  lenData: length of data to publish
 	* @param  lenTopic: length of topic
 	* @param  pData: pointer to data buffer
-	* @param  lenOfLenData: numbers of digit of lendata (1,2,3,4...)
   * @retval OK or ERR
   */
 response_t MQTT_Publish(uint8_t clientIndex,
 												uint8_t msgId, uint8_t QoS, uint8_t retain, 
-												uint8_t* topic, uint8_t lenData, uint8_t* pData, uint8_t lenOfLenData)
+												uint8_t* topic, uint8_t lenData, uint8_t* pData)
 {
 		HAL_Delay(MAX_WAIT_TIME);
+		uint8_t lenOfLenData;
 		if(lenData <= 9 ) lenOfLenData = 1;
 		else if(lenData > 9 && lenData < 100) lenOfLenData = 2;
 		else if(lenData >= 100) lenOfLenData = 3;
@@ -320,6 +353,150 @@ response_t MQTT_Publish(uint8_t clientIndex,
 				return RESPONSE_OK;
 		}
 		HAL_Delay(MAX_WAIT_TIME);
+		return RESPONSE_ERR;
+}
+
+/**
+  * @brief  Select SSL Mode
+	* @param  clientIndex: MQTT client identifier (0-5)
+	* @param  mode: 0(disable SSL) or 1 (enable SSL)
+  * @param  sslIndex: SSL context index (0-5)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Mode(uint8_t clientIndex,
+												 uint8_t mode, uint8_t sslIndex)
+{
+		HAL_Delay(1000);
+		sprintf((char*) g_buff_temp, "0AT+QMTCFG=ssl,%d,%d,%d\r", clientIndex, mode, sslIndex);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 21);
+		if(Recv_Response(&UartEmulHandle, 350) == RESPONSE_OK) 
+		{
+				Log_Info((uint8_t*)"RES_OK\n", 7);
+				return RESPONSE_OK;
+		}
+		else Log_Info((uint8_t*)"RES_ERR\n", 8);
+		return RESPONSE_ERR;
+}
+
+/**
+  * @brief  Config Certificates of SSL from file in UFS
+	* @param  sslIndex: SSL context index (0-5)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Certificate(uint8_t sslIndex)
+{
+		HAL_Delay(1000);
+		/*Send CA*/
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=cacert,%d,cacert.pem\r", sslIndex);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 33);
+		if(Recv_Response(&UartEmulHandle, 350) != RESPONSE_OK) 
+		{
+				Log_Info((uint8_t*)"CA_ERR\n", 7);
+				return RESPONSE_ERR;
+		}
+		
+		/*Send CC*/
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=clientcert,%d,client.pem\r", sslIndex);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 36);
+		if(Recv_Response(&UartEmulHandle, 350) != RESPONSE_OK) 
+		{
+				Log_Info((uint8_t*)"CC_ERR\n", 7);
+				return RESPONSE_ERR;
+		}
+		
+		/*Send CK*/
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=clientkey,%d,user_key.pem\r", sslIndex);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 37);
+		if(Recv_Response(&UartEmulHandle, 350) != RESPONSE_OK)
+		{
+				Log_Info((uint8_t*)"CK_ERR\n", 7);
+				return RESPONSE_ERR;
+		}
+		else Log_Info((uint8_t*)"RES_OK\n", 7);
+		return RESPONSE_ERR;
+}
+
+/**
+  * @brief  Select SSL level
+  * @param  sslIndex: SSL context index (0-5)
+  * @param  level: SSL level (0-2)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Level(uint8_t sslIndex,
+												  uint8_t level)
+{
+		HAL_Delay(1000);
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=seclevel,%d,%d\r", sslIndex, level);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 25);
+		if(Recv_Response(&UartEmulHandle, 350) == RESPONSE_OK) 
+		{
+				Log_Info((uint8_t*)"RES_OK\n", 7);
+				return RESPONSE_OK;
+		}
+		else Log_Info((uint8_t*)"RES_ERR\n", 8);
+		return RESPONSE_ERR;
+}
+
+/**
+  * @brief  Select SSL version
+  * @param  sslIndex: SSL context index (0-5)
+  * @param  version: SSL version (0-4)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Version(uint8_t sslIndex,
+												    uint8_t version)
+{
+		HAL_Delay(1000);
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=sslversion,%d,%d\r", sslIndex, version);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 27);
+		if(Recv_Response(&UartEmulHandle, 350) == RESPONSE_OK) 
+		{
+				Log_Info((uint8_t*)"RES_OK\n", 7);
+				return RESPONSE_OK;
+		}
+		else Log_Info((uint8_t*)"RES_ERR\n", 8);
+		return RESPONSE_ERR;
+}
+
+/**
+  * @brief  Config ignore validity check for certification
+  * @param  sslIndex: SSL context index (0-5)
+  * @param  cipherSuite: string type format 0xYYYY
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Ciphersuite(uint8_t sslIndex,
+																uint8_t* cipherSuite)
+{
+		HAL_Delay(1000);
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=ciphersuite,%d,%s\r", sslIndex, cipherSuite);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 33);
+		if(Recv_Response(&UartEmulHandle, 350) == RESPONSE_OK) 
+		{
+				Log_Info((uint8_t*)"RES_OK\n", 7);
+				return RESPONSE_OK;
+		}
+		else Log_Info((uint8_t*)"RES_ERR\n", 8);
+		return RESPONSE_ERR;
+}
+
+/**
+  * @brief  Config ignore validity check for certification
+  * @param  sslIndex: SSL context index (0-5)
+  * @param  ignoreltime: 0 (care about validity check for certificate) or 1 (ignore)
+  * @retval OK or ERR
+  */
+response_t MQTT_SSL_Ignore(uint8_t sslIndex,
+													 uint8_t ignoreltime)
+{
+		HAL_Delay(1000);
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=ignorelocaltime,%d,%d\r", sslIndex, ignoreltime);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 32);
+		if(Recv_Response(&UartEmulHandle, 350) == RESPONSE_OK) 
+		{
+				Log_Info((uint8_t*)"RES_OK\n", 7);
+				return RESPONSE_OK;
+		}
+		else Log_Info((uint8_t*)"RES_ERR\n", 8);
 		return RESPONSE_ERR;
 }
 
