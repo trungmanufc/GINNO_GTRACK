@@ -10,22 +10,24 @@
 
 #include"stm32f4xx_hal.h"
 
-/*Application configurable items */
+/** @defgroup SC7A20 I2C define
+  * @brief I2C I2C information
+  * @{
+  */
 #define SC7A20_I2C					I2C1
 #define SC7A20_I2C_GPIO_PORT 		GPIOB
 #define SC7A20_SDA_PIN				GPIO_PIN_7
 #define SC7A20_SCL_PIN				GPIO_PIN_6
-//#define SC7A20_I2C_SPEED 			I2C_SPEED_STANDARD()
-
-
-/*Slave Address of SC7A20*/
 #define SC7A20_I2C_ADDRESS			0x30
 
-/*Register Address of SC7A20*/
+
+/** @defgroup SC7A20 I2C define
+  * @brief I2C I2C information
+  * @{
+  */
 #define SC7A20_ADDR_OUT_TEMP_L		0x0C
 #define SC7A20_ADDR_OUT_TEMP_H		0x0D
 #define SC7A20_ADDR_WHO_AM_I		0x0F
-//#define SC7A20_ADDR_USER_CAL
 #define SC7A20_ADDR_NVM_WR			0x1E
 #define SC7A20_ADDR_TEMP_CFG		0x1F
 #define SC7A20_ADDR_CTRL_REG1 		0x20
@@ -62,7 +64,10 @@
 #define SC7A20_ADDR_ACT_DURATION	0X3F
 
 
-/*Some generic macros*/
+/** @defgroup SC7A20 macros define
+  * @brief SC7A20 generic macros
+  * @{
+  */
 #define SC7A20_CR1_NORMAL_400HZ_EN	0x73
 #define SC7A20_CR3_ENABLE_AOI_INT1	0x40
 #define SC7A20_INT1_MOTION_DETECT	0x0A
@@ -70,6 +75,9 @@
 #define SC7A20_CR5_4D_DISABLE		0x00
 #define SC7A20_CR4_2G				0x38
 
+/**
+  * @brief SC7A20 3-Axis acceleration structure definition
+  */
 typedef struct
 {
 	uint16_t u16XCoor;
@@ -77,8 +85,31 @@ typedef struct
 	uint16_t u16ZCoor;
 }Coordinate_t;
 
+
+/**
+  * @brief  Initialie the ACCE sensor.
+  * @param  none
+  *
+  * @retval value Read from CR1 register
+  */
 uint8_t SC7A20_Init(void);
+
+
+/**
+  * @brief  Read X, Y, Z acceleration from ACCE
+  * @param  pCoordinate: pointer to Coordinate_t structure which contains the
+  * 					 value of 3 coordination acceleration
+  *
+  * @retval none
+  */
 void SC7A20_coordinate_read(Coordinate_t* pCoordinate);
+
+/**
+  * @brief  Read the value of the corresponding register of the ACCE
+  * @param  u8RegAddress : the address of the register we want to read
+  *
+  * @retval Value of this register
+  */
 uint8_t SC7A20_read(uint8_t u8RegAddress);
 
 

@@ -12,6 +12,22 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+
+/** @defgroup GPS macros define
+  * @brief GPS generic macros
+  * @{
+  */
+#define GPS_NOT_FIX 0
+#define GPS_FIX 	1
+#define GPS_NORTH	1
+#define GPS_SOUTH	0
+#define GPS_EAST	1
+#define GPS_WEST	0
+
+
+/**
+  * @brief GPS GNSS module L76 infomation structure definition
+  */
 typedef struct
 {
 	double dLongtitude;
@@ -24,8 +40,22 @@ typedef struct
 	uint8_t u8Second;
 }L76;
 
+
+/**
+  * @brief  Initialie the GPS module.
+  * @param  none
+  *
+  * @retval Successful or failure initialization
+  */
 uint8_t Quectel_Init(void);
 
+/**
+  * @brief  Parse the NMEA string and save the information needed into L76 structure
+  * @param  sL76: pointer to GPS info structure
+  * @param  sRxBuffer: pointer to the string buffer that contains NMEA string
+  *
+  * @retval none
+  */
 void gps_read(char*	sRxBuffer, L76* sL76, char *seGNGGA, char* seGNRMC);
 
 #endif /* L76_H_ */

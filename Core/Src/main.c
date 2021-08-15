@@ -97,17 +97,10 @@ PUTCHAR_PROTOTYPE
 
 
 
-const char *buff[] = {
-      "$GNRMC,173843,A,3349.896,N,11808.521,W,000.0,360.0,230108,013.4,E*69\r\n",
-      "$GNGGA,111609.14,5001.27,N,3613.06,E,3,08,0.0,10.2,M,0.0,M,0.0,0000*70\r\n",
-      "$GNGSV,2,1,08,01,05,005,80,02,05,050,80,03,05,095,80,04,05,140,80*7f\r\n",
-      "$GNGSV,2,2,08,05,05,185,80,06,05,230,80,07,05,275,80,08,05,320,80*71\r\n",
-      "$GNGSA,A,3,01,02,03,04,05,06,07,08,00,00,00,00,0.0,0.0,0.0*3a\r\n",
-      "$GNRMC,111609.14,A,5001.27,N,3613.06,E,11.2,0.0,261206,0.0,E*50\r\n",
-      "$GNVTG,217.5,T,208.8,M,000.00,N,000.01,K*4C\r\n"};
+char* testBuffer2 = "$GNRMC,152657.000,A,2057.82025,N,10549.33270,E,0.00,0.00,060821,,,A,V*04\r\n$GNGGA,152658.000,2057.82021,N,10549.33274,E,1,12,1.0,46.7,M,-27.8,M,,*59\r\n";
 
 /* The Rx Buffer from the Quectel L76 LB */
-char rxBuffer[500];
+char rxBuffer[1500];
 
 char *testBuffer = "$GNRMC,573843,A,3349.896,N,11808.521,W,000.0,360.0,230108,013.4,E*69\r\n$GNGGA,185833.80,4808.7402397,S,01133.9325039,W,1,15,1.1,470.50,M,45.65,M,,*75\r\n";
 /* Strings to parse the GPGGA NMEA */
@@ -156,15 +149,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   u8Test = SC7A20_Init();
-  //Quectel_Init();
 
 
-  char cGpsOnly[100] = "$PMTK353,1,0,0,0,0*2B\n\r";
-  HAL_UART_Transmit_IT(&uartGPS, (uint8_t*)cGpsOnly, strlen(cGpsOnly));
+  //char cGpsOnly[100] = "$PMTK353,1,0,0,0,0*2B\n\r";
+  //HAL_UART_Transmit_IT(&uartGPS, (uint8_t*)cGpsOnly, strlen(cGpsOnly));
 
   /*Enable GPS*/
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-  HAL_UART_Receive_IT(&uartGPS, (uint8_t*)rxBuffer, (sizeof(rxBuffer) - 1));
+  //Quectel_Init();
+  HAL_UART_Receive_IT(&uartGPS, (uint8_t*)rxBuffer, sizeof(rxBuffer));
 
   /* Print log to indicate that we initialize the program */
   printf("************GTRACK STM32 PROGRAM*************\r\n");
@@ -215,7 +208,7 @@ int main(void)
 	   /* 2 strings to split the GNGAA from the NMEA sent from the Quectel L76 LB */
 		printf("%s\r\n\n", rxBuffer);
 		printf("%d\r\n\n", strlen(rxBuffer));
-		gps_read(testBuffer, &test_L76, test_GNGGA, test_GNRMC);
+		gps_read(testBuffer2, &test_L76, test_GNGGA, test_GNRMC);
 
 		HAL_Delay(500);
 	  //BLINK LED
@@ -430,6 +423,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_GPIO_EXTI_Callback could be implemented in the user file
    */
+}
+
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  /* Prevent unused argument(s) compilation warning */
+  //__NOP();
+  /* NOTE: This function should not be modified, when the callback is needed,
+           the HAL_UART_RxCpltCallback could be implemented in the user file
+   */
+  HAL_UART_Receive_IT(&uartGPS, (uint8_t*)rxBuffer, sizeof(rxBuffer));
 }
 /* USER CODE END 4 */
 

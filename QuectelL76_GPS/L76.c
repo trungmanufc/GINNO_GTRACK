@@ -8,15 +8,9 @@
 #include<string.h>
 #include"L76.h"
 
-/* Some NMEA macros */
-#define GPS_NOT_FIX 0
-#define GPS_FIX 	1
-#define GPS_NORTH	1
-#define GPS_SOUTH	0
-#define GPS_EAST	1
-#define GPS_WEST	0
-
 extern UART_HandleTypeDef uartGPS;
+
+/* Static function prototypes */
 static void L76_Lat_Parse(char* sLat, L76* pL76, uint8_t u8NorS);
 static void L76_Long_Parse(char* sLat, L76* pL76, uint8_t u8EorW);
 static void L76_Time_Parse(char* sUtcTime, L76* pL76);
@@ -24,24 +18,21 @@ static void L76_Date_Parse(char* sRmcDate, L76* pL76Handle);
 
 uint8_t Quectel_Init(void)
 {
-	/*char sGpsHotStart[100] = "$PMTK101*32\r\n";
-
-	HAL_UART_Transmit(&uartGPS, (uint8_t*)sGpsHotStart, strlen(sGpsHotStart), HAL_MAX_DELAY);*/
 
 	char cGpsOnly[100] = "$PMTK353,1,0,0,0,0*2B\r\n";
 
-	/*if(HAL_UART_Transmit(&uartGPS, (uint8_t*)cGpsOnly, strlen(cGpsOnly), HAL_MAX_DELAY) != HAL_OK)
+	char cGps10HzFix[100] = "$PMTK220,100*1F\r\n";
+
+	HAL_UART_Transmit_IT(&uartGPS, (uint8_t*)cGps10HzFix, strlen(cGps10HzFix));
+
+	if(HAL_UART_Transmit_IT(&uartGPS, (uint8_t*)cGpsOnly, strlen(cGpsOnly)) != HAL_OK)
 	{
 		return HAL_ERROR;
 	}
 	else
 	{
 		return HAL_OK;
-	}*/
-
-	HAL_UART_Transmit_IT(&uartGPS, (uint8_t*)cGpsOnly, strlen(cGpsOnly));
-
-	return 0;
+	}
 }
 
 void gps_read(char*	sRxBuffer, L76* pL76, char *seGNGGA, char* seGNRMC)
@@ -154,12 +145,15 @@ void gps_read(char*	sRxBuffer, L76* pL76, char *seGNGGA, char* seGNRMC)
 		/* 2. Get the String of Date from the NMEA GNRMC message */
 		j = 0;
 
-		for (uint8_t i = u8IndexOfComma2[8]; i < u8IndexOfComma[9]; i++)
+		for (uint8_t i = u8IndexOfComma2[8]; i < u8IndexOfComma2[9]; i++)
 		{
 			sDate[j] = seGNRMC[i+1];
 			j++;
 		}
 		sDate[j-1] = '\0';
+
+		/* Test */
+		printf("DATE string: %s\r\n",sDate);
 
 		L76_Date_Parse(sDate, pL76);
 

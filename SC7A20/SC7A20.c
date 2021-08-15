@@ -4,6 +4,10 @@
  *  Created on: Jul 15, 2021
  *      Author: Admin
  */
+
+
+
+
 #include "SC7A20.h"
 
 static void SC7A20_write(uint8_t u8Value, uint8_t u8RegAddress);
@@ -37,7 +41,7 @@ uint8_t SC7A20_Init()
 	SC7A20_setMotionTHS(16);
 
 	/*8. Set duration of INT1 to 10*/
-	SC7A20_setInt1Duration(10);
+	SC7A20_setInt1Duration(2);
 
 	/*10. Read back the data from CTRL1, if the data is successfully writen, the initialization is successful*/
 	if (SC7A20_read(SC7A20_ADDR_CTRL_REG1) == SC7A20_CR1_NORMAL_400HZ_EN)
@@ -64,6 +68,7 @@ void SC7A20_coordinate_read(Coordinate_t* pCoordinate)
 
 static void SC7A20_write(uint8_t u8Value, uint8_t u8RegAddress)
 {
+	/* Write the address of the register and then write the data */
 	uint8_t u8Tx[2];
 	u8Tx[0] = u8RegAddress;
 	u8Tx[1] = u8Value;
