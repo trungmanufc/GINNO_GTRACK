@@ -76,11 +76,16 @@ uint8_t 		g_data_write = 0x89;
 uint8_t 		g_data_read = 0;
 GPS_t   		g_gps_data = {0};
 
-//test value of longitude, latitude
+//test value of GPS param
 double 			g_long = 1234.456789;
 double 			g_lat  = 3214.876543;
+uint8_t 		g_day = 18, g_month = 8, g_hour = 7, g_minute = 57, g_second = 9;
+uint16_t 		g_year = 2021;
 float* 			g_pFloat = 0;
 char 				g_buff_send[30] = {0};
+char				g_buff_send_year[2] = {0};
+char 				g_buff_send_date[2] = {0};
+char 				g_buff_send_time[2] = {0};
 
 /* USER CODE END PV */
 
@@ -90,6 +95,7 @@ static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -98,33 +104,136 @@ static void MX_SPI2_Init(void);
 /* USER CODE BEGIN 0 */
 response_t MQTT_Open_Connect(void)
 {	
-	g_flag = RESPONSE_ERR;
-	/*wait to open network port 8883*/
-	while(g_flag == RESPONSE_ERR)
-	{
-			#if TEST_MQTT_SSL == 1
-			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
-			#else
-			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);	
-			#endif	
-	}
-	g_mqtt_isOn = ON;
+		g_flag = RESPONSE_ERR;
+		/*wait to open network port 8883*/
+		while(g_flag == RESPONSE_ERR)
+		{
+				#if TEST_MQTT_SSL == 1
+				g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+				#else
+				g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);	
+				#endif	
+		}
+		g_mqtt_isOn = ON;
+			
+		/*wait to connect to broker*/
+		g_flag = RESPONSE_ERR;
+		g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+		while(g_flag != RESPONSE_OK)
+		{
+				//Reopen network and reconnect
+				#if TEST_MQTT_SSL == 1			
+				MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+				#else
+				MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);
+				#endif
+				g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+		}
+		g_flag = RESPONSE_ERR; 
+		return RESPONSE_OK;
+}
+
+void Write_Read_Pub(void)
+{
+		/*Test Write, Read Flash and pub data to Broker using Union*/
+		W25Q16_Erase_Sector(0);
 		
-	/*wait to connect to broker*/
-	g_flag = RESPONSE_ERR;
-	g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
-	while(g_flag != RESPONSE_OK)
-	{
-			//Reopen network and reconnect
-			#if TEST_MQTT_SSL == 1			
-			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
-			#else
-			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);
-			#endif
-			g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
-	}
-	g_flag = RESPONSE_ERR; 
-	return RESPONSE_OK;
+		//set data to write into flash
+		g_gps_data.long_t.dLongRaw = g_long;
+		g_gps_data.lat_t.dLatRaw = g_lat;
+		g_gps_data.u8Day = g_day;
+		g_gps_data.u8Month = g_month;
+		g_gps_data.year_t.u16YearRaw = g_year;
+		g_gps_data.u8Hour = g_hour;
+		g_gps_data.u8Minute = g_minute;
+		g_gps_data.u8Second = g_second;
+		
+		Log_Info((uint8_t*)"Write Data\n", 11);
+		for(uint8_t i = 0; i < 8; i++)
+		{
+				g_write_buffer[i] = g_gps_data.long_t.longBytes[i];
+		}
+		for(uint8_t i = 8; i < 16; i++)
+		{
+				g_write_buffer[i] = g_gps_data.lat_t.latBytes[i - 8];
+		}
+		g_write_buffer[16] = g_gps_data.u8Day;
+		g_write_buffer[17] = g_gps_data.u8Month;
+		g_write_buffer[18] = g_gps_data.year_t.yearBytes[0];
+		g_write_buffer[19] = g_gps_data.year_t.yearBytes[1];
+		g_write_buffer[20] = g_gps_data.u8Hour;
+		g_write_buffer[21] = g_gps_data.u8Minute;
+		g_write_buffer[22] = g_gps_data.u8Second;
+		
+		W25Q16_WritePage(g_write_buffer, 0, 0x00, 23);
+		
+		HAL_Delay(500);
+		Log_Info((uint8_t*)"ReadSomeByte\n", 13);
+		W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 23);
+		/*Publish Raw data*/
+		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", 23, g_read_buffer);
+		
+		/*Test send string type to MQTT*/
+		HAL_Delay(500);
+		//clear data of gps variables 
+		g_gps_data.long_t.dLongRaw = 0;
+		g_gps_data.lat_t.dLatRaw = 0;
+		g_gps_data.u8Day = 0;
+		g_gps_data.u8Month = 0;
+		g_gps_data.year_t.u16YearRaw = 0;
+		g_gps_data.u8Hour = 0;
+		g_gps_data.u8Minute = 0;
+		g_gps_data.u8Second = 0;
+		
+		//read and pub longitude
+		for(uint8_t i = 0; i < 8; i++)
+		{
+				g_gps_data.long_t.longBytes[i] = g_read_buffer[i];
+		}
+		ftoa(g_gps_data.long_t.dLongRaw, g_buff_send, 6);
+		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
+		memset(g_buff_send, '\0', 30);
+		//read and pub latitude
+		for(uint8_t i = 0; i < 8; i++)
+		{
+				g_gps_data.lat_t.latBytes[i] = g_read_buffer[i+8];
+		}
+		ftoa(g_gps_data.lat_t.dLatRaw, g_buff_send, 6);
+		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
+		memset(g_buff_send, '\0', 30);
+		
+		//read and pub date
+		g_gps_data.u8Day = g_read_buffer[16];
+		u16_to_String(g_buff_send_date, g_gps_data.u8Day);
+		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_date), (uint8_t*)g_buff_send_date);
+		memset(g_buff_send_date, '\0', 2);
+		
+		g_gps_data.u8Month = g_read_buffer[17];
+		u16_to_String(g_buff_send_date, g_gps_data.u8Month);
+		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_date), (uint8_t*)g_buff_send_date);
+		memset(g_buff_send_date, '\0', 2);
+		
+		g_gps_data.year_t.yearBytes[0] = g_read_buffer[18];
+		g_gps_data.year_t.yearBytes[1] = g_read_buffer[19];
+		u16_to_String(g_buff_send_year, g_gps_data.year_t.u16YearRaw);
+		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_year), (uint8_t*)g_buff_send_year);
+		memset(g_buff_send_year, '\0', 2);
+		
+		//read and pub time
+		g_gps_data.u8Hour = g_read_buffer[20];
+		u16_to_String(g_buff_send_time, g_gps_data.u8Hour);
+		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_time), (uint8_t*)g_buff_send_time);
+		memset(g_buff_send_time, '\0', 2);
+		
+		g_gps_data.u8Minute = g_read_buffer[21];
+		u16_to_String(g_buff_send_time, g_gps_data.u8Minute);
+		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_time), (uint8_t*)g_buff_send_time);
+		memset(g_buff_send_time, '\0', 2);
+		
+		g_gps_data.u8Second = g_read_buffer[22];
+		u16_to_String(g_buff_send_time, g_gps_data.u8Second);
+		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_time), (uint8_t*)g_buff_send_time);
+		memset(g_buff_send_time, '\0', 2);
 }
 /* USER CODE END 0 */
 
@@ -242,38 +351,7 @@ int main(void)
 	MQTT_SSL_Ciphersuite(0, (uint8_t*)"0xFFFF");
 	MQTT_SSL_Ignore(0, 1);
 		#endif	
-//	/*wait to open network port 8883*/
-//	while(g_flag == RESPONSE_ERR)
-//	{
-//			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
-//	}
-//	g_mqtt_isOn = ON;
-//	
-//	#else
-//	/*Connect without SSL*/
-//	/*wait to open network port 1883*/
-//	while(g_flag == RESPONSE_ERR)
-//	{
-////			g_flag = MQTT_Open(0, (uint8_t*)"www.maqiatto.com", 1883);
-//			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);		
-//	}
-//	g_mqtt_isOn = ON;
 
-//	/*wait to connect to broker*/
-//	g_flag = RESPONSE_ERR;
-//	g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
-////	if(g_flag == RESPONSE_MQTT_CLOSE)	MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
-//	while(g_flag != RESPONSE_OK)
-//	{
-//			//Reopen network and reconnect
-//			#if TEST_MQTT_SSL == 1			
-//			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
-//			#else
-//			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);
-//			#endif
-//			g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
-//	}
-//	g_flag = RESPONSE_ERR; 
 	if(MQTT_Check_Connect() != RESPONSE_OK)
 	{
 			MQTT_Open_Connect();
@@ -286,47 +364,8 @@ int main(void)
 	HAL_Delay(1000);
 	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", 10, g_read_buffer);
 
-	/*Test Write, Read Flash and pub data to Broker using Union*/
-	W25Q16_Erase_Sector(0);
-	g_gps_data.long_t.dLongRaw = g_long;
-	g_gps_data.lat_t.dLatRaw = g_lat;
-	
-	Log_Info((uint8_t*)"Write Data\n", 11);
-	for(uint8_t i = 0; i < 8; i++)
-	{
-			g_write_buffer[i] = g_gps_data.long_t.longBytes[i];
-	}
-	for(uint8_t i = 8; i < 16; i++)
-	{
-			g_write_buffer[i] = g_gps_data.lat_t.latBytes[i - 8];
-	}
-	W25Q16_WritePage(g_write_buffer, 0, 0x00, 16);
-	
-	HAL_Delay(500);
-	Log_Info((uint8_t*)"ReadSomeByte\n", 13);
-	W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 16);
-	/*Publish Raw data*/
-	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", 16, g_read_buffer);
-	
-	/*Test send string type to MQTT*/
-	HAL_Delay(500);
-	g_gps_data.long_t.dLongRaw = 0;
-	g_gps_data.lat_t.dLatRaw = 0;
-	for(uint8_t i = 0; i < 8; i++)
-	{
-			g_gps_data.long_t.longBytes[i] = g_read_buffer[i];
-	}
-	ftoa(g_gps_data.long_t.dLongRaw, g_buff_send, 6);
-	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
-	
-	for(uint8_t i = 0; i < 8; i++)
-	{
-			g_gps_data.lat_t.latBytes[i] = g_read_buffer[i+8];
-	}
-	ftoa(g_gps_data.lat_t.dLatRaw, g_buff_send, 6);
-
-	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
-
+	/*Write gps data to flash, read and pub*/
+	Write_Read_Pub();
 	#endif
 
 	#if TEST_HTTP == 1

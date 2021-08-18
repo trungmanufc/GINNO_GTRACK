@@ -46,7 +46,22 @@ typedef struct
         double dLatRaw;     /*!<Raw data*/
         uint8_t latBytes[8];
     } lat_t;
-
+		
+		/*!<Date Fields*/
+		uint8_t u8Day;			
+		uint8_t u8Month;
+		
+		union
+    {
+        uint16_t u16YearRaw;
+        uint8_t yearBytes[2];
+    } year_t;
+		
+		/*!<Time Fields*/
+		uint8_t u8Hour;
+		uint8_t u8Minute;
+		uint8_t u8Second;
+		
 } GPS_t;
 
 /**

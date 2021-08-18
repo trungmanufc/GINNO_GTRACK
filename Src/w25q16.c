@@ -694,11 +694,6 @@ uint8_t intToStr(uint32_t inputNum, char* str, uint8_t numDigit)
  */
 void ftoa(double number, char* res, uint8_t afterPoint)
 {
-//		float* pDouble = (float*)number;
-//    // Extract integer part
-//    uint32_t ipart = (uint32_t)(*pDouble);
-//    // Extract floating part
-//    float fpart = *pDouble - (float)ipart;
 	 // Extract integer part
     uint32_t ipart = (uint32_t)number;
     // Extract floating part
@@ -718,4 +713,24 @@ void ftoa(double number, char* res, uint8_t afterPoint)
     }
 }
 
+/*Functions relate convert uint16_t to string*/
+
+void u16_to_String(char* res, uint16_t inputValue)
+{
+    uint8_t i = 0, count = 0;
+    uint16_t temp = inputValue;
+    while(temp != 0)
+    {
+        temp = temp /10;
+        count++;
+    }
+    i = count - 1;
+    while(inputValue != 0)
+    {
+        temp = inputValue % 10;
+        *(res + i) = temp + 0x30;
+        i--;
+        inputValue /= 10;
+    }
+}
 /*EOF*/
