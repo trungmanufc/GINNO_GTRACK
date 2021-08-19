@@ -303,6 +303,12 @@ void HAL_UART_Emul_MspInit(UART_Emul_HandleTypeDef *huart)
   HAL_NVIC_SetPriority(UART_EMUL_EXTI_IRQ, 0, 0);
   HAL_NVIC_EnableIRQ(UART_EMUL_EXTI_IRQ);
 }
+
+void HAL_UART_Emul_MspDeInit(UART_Emul_HandleTypeDef *huart)
+{
+	HAL_GPIO_DeInit(UART_EMUL_RX_PORT, UART_EMUL_RX_PIN);
+	HAL_GPIO_DeInit(UART_EMUL_TX_PORT, UART_EMUL_TX_PIN);
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
