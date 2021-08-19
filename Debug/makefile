@@ -11,6 +11,8 @@ RM := rm -rf
 -include sources.mk
 -include SC7A20/subdir.mk
 -include QuectelL76_GPS/subdir.mk
+-include LTE/subdir.mk
+-include Flash/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk

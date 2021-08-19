@@ -8,7 +8,7 @@
 #include<string.h>
 #include"L76.h"
 
-extern UART_HandleTypeDef uartGPS;
+extern UART_HandleTypeDef huart2;
 
 /* Static function prototypes */
 static void L76_Lat_Parse(char* sLat, L76* pL76, uint8_t u8NorS);
@@ -23,9 +23,9 @@ uint8_t Quectel_Init(void)
 
 	char cGps10HzFix[100] = "$PMTK220,100*1F\r\n";
 
-	HAL_UART_Transmit_IT(&uartGPS, (uint8_t*)cGps10HzFix, strlen(cGps10HzFix));
+	HAL_UART_Transmit_IT(&huart2, (uint8_t*)cGps10HzFix, strlen(cGps10HzFix));
 
-	if(HAL_UART_Transmit_IT(&uartGPS, (uint8_t*)cGpsOnly, strlen(cGpsOnly)) != HAL_OK)
+	if(HAL_UART_Transmit_IT(&huart2, (uint8_t*)cGpsOnly, strlen(cGpsOnly)) != HAL_OK)
 	{
 		return HAL_ERROR;
 	}
@@ -107,7 +107,7 @@ void gps_read(char*	sRxBuffer, L76* pL76, char *seGNGGA, char* seGNRMC)
 	}
 
 	/* Check whether the GPS is fix or not on GNGGA */
-	if (seGNGGA[u8IndexOfComma[5] + 1] == '0' || strlen(seGNGGA) == 0)
+	if (seGNGGA[u8IndexOfComma[5] + 1] == '0' || strlen(seGNGGA) == 0 || seGNGGA[u8IndexOfComma[5]+1] != '1')
 	{
 		if (seGNGGA[u8IndexOfComma[5] + 1] == '0')
 		{

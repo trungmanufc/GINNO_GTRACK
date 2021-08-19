@@ -32,7 +32,10 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include"lte.h"
+#include"soft_uart.h"
+#include"stm32f4xx_hal_uart_emul.h"
+#include<stdio.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -59,7 +62,14 @@ void Error_Handler(void);
 
 /* Private defines -----------------------------------------------------------*/
 /* USER CODE BEGIN Private defines */
-
+#define PWR_EN_Pin GPIO_PIN_9
+#define PWR_EN_GPIO_Port GPIOC
+#define WAKEUP_CTRL_Pin GPIO_PIN_3
+#define WAKEUP_CTRL_GPIO_Port GPIOB
+#define RESET_CTRL_Pin GPIO_PIN_4
+#define RESET_CTRL_GPIO_Port GPIOB
+#define PWRKEY_CTRL_Pin GPIO_PIN_5
+#define PWRKEY_CTRL_GPIO_Port GPIOB
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

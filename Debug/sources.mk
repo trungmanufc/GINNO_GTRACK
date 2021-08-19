@@ -23,6 +23,8 @@ SUBDIRS := \
 Core/Src \
 Core/Startup \
 Drivers/STM32F4xx_HAL_Driver/Src \
+Flash \
+LTE \
 QuectelL76_GPS \
 SC7A20 \
 

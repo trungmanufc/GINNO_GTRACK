@@ -27,6 +27,7 @@
 #include<stdbool.h>
 #include<string.h>
 #include"L76.h"
+#include"w25q16.h"
 
 
 /* USER CODE END Includes */
@@ -38,6 +39,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define TEST_MQTT		1
+#define TEST_MQTT_SSL	1
+#define TEST_FLASH 		0
+#define MAX_SIZE_BUFF	256
+#define TEST_GPS		1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -48,12 +54,15 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
 
+SPI_HandleTypeDef hspi2;
 
+TIM_HandleTypeDef htim3;
+
+UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
-UART_HandleTypeDef uartGPS;
-UART_HandleTypeDef uartLog;
 
 /* USER CODE END PV */
 
@@ -63,6 +72,8 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_SPI2_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 uint8_t u8SC7A20Error = RESET;
 uint8_t u8I2cTest = RESET;
@@ -75,7 +86,40 @@ uint8_t isMotion = RESET;
 uint8_t u8StatusInt1 = 0;
 bool bIsMotion = false;
 bool bIsInMotion = false;
+bool bIsSetGPS = false;
 uint32_t u32CurrentTime = 0;
+
+
+/**
+  * @brief  enum type for GPS
+  * @retval None
+  */
+
+
+/* Quang's global variables */
+uint8_t 		g_buffer_log[30] = {0};
+uint8_t 		g_write_buffer[MAX_SIZE_BUFF] = {0};
+uint8_t		 	g_read_buffer[MAX_SIZE_BUFF] = {0};
+uint8_t 		g_data_write = 0x89;
+uint8_t 		g_data_read = 0;
+GPS_t   		g_gps_data = {0};
+
+
+UART_Emul_HandleTypeDef UartEmulHandle;
+
+response_t 		g_flag = RESPONSE_ERR;
+
+//global variables for LTE module
+uint8_t    		g_recv_byte = 0, g_count = 0, g_count_temp = 0;
+uint8_t 		g_isDone = RX_FALSE, g_check_end = 1;
+uint8_t 		g_recv_buff[MAX_SIZE_BUFF] = {0};
+uint8_t 		g_buff_temp[MAX_SIZE_BUFF] = {0};
+uint8_t 		g_id_msg = 0, g_size_sms = 0, g_size_IP = 0;
+uint8_t 		g_mqtt_isOn = OFF;
+uint32_t 		g_timeNow = 0;
+char 			g_buff_send[30] = {0};
+
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -88,7 +132,7 @@ uint32_t u32CurrentTime = 0;
 
 PUTCHAR_PROTOTYPE
 {
-	HAL_UART_Transmit(&uartLog, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
 
 	return ch;
 }
@@ -100,7 +144,7 @@ PUTCHAR_PROTOTYPE
 char* testBuffer2 = "$GNRMC,152657.000,A,2057.82025,N,10549.33270,E,0.00,0.00,060821,,,A,V*04\r\n$GNGGA,152658.000,2057.82021,N,10549.33274,E,1,12,1.0,46.7,M,-27.8,M,,*59\r\n";
 
 /* The Rx Buffer from the Quectel L76 LB */
-char rxBuffer[1500];
+char rxBuffer[1000];
 
 char *testBuffer = "$GNRMC,573843,A,3349.896,N,11808.521,W,000.0,360.0,230108,013.4,E*69\r\n$GNGGA,185833.80,4808.7402397,S,01133.9325039,W,1,15,1.1,470.50,M,45.65,M,,*75\r\n";
 /* Strings to parse the GPGGA NMEA */
@@ -113,6 +157,38 @@ char *sGNGGA ;
 L76 test_L76;
 char* testComma = "GNGGA,185833.80,4808.7402397,N,01133.9325039,E,0,15,1.1,470.50,M,45.65,M,,*75";
 uint8_t testIndexofComma[20];
+
+/* MQTT Open Contact */
+response_t MQTT_Open_Connect(void)
+{
+	g_flag = RESPONSE_ERR;
+	/*wait to open network port 8883*/
+	while(g_flag == RESPONSE_ERR)
+	{
+			#if TEST_MQTT_SSL == 1
+			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+			#else
+			g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);
+			#endif
+	}
+	g_mqtt_isOn = ON;
+
+	/*wait to connect to broker*/
+	g_flag = RESPONSE_ERR;
+	g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+	while(g_flag != RESPONSE_OK)
+	{
+			//Reopen network and reconnect
+			#if TEST_MQTT_SSL == 1
+			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+			#else
+			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);
+			#endif
+			g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+	}
+	g_flag = RESPONSE_ERR;
+	return RESPONSE_OK;
+}
 /* USER CODE END 0 */
 
 /**
@@ -122,7 +198,8 @@ uint8_t testIndexofComma[20];
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	  char test_GNGGA[100] = {0};
+	  char test_GNRMC[100] = {0};
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -146,50 +223,146 @@ int main(void)
   MX_I2C1_Init();
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
+  MX_SPI2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
   u8Test = SC7A20_Init();
+  Log_Info((uint8_t*)"Inited Flash\n", 13);
+
+  W25Q16_Init();
+  W25Q16_Erase_Chip();
+
+  HAL_Delay(500);
 
 
-  //char cGpsOnly[100] = "$PMTK353,1,0,0,0,0*2B\n\r";
-  //HAL_UART_Transmit_IT(&uartGPS, (uint8_t*)cGpsOnly, strlen(cGpsOnly));
+  Enable_LTE();
+  //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_RESET);
+  HAL_Delay(15000);
+  printf("LTE Enabled!!\r\n");
+
+  HAL_Delay(1000);
+  	Trans_Data(&UartEmulHandle, (uint8_t*)"AT+GMI\r", 7);
+  	if(Recv_Response(&UartEmulHandle, 350) == RESPONSE_OK)
+  	{
+  			Log_Info((uint8_t*)"RES_OK\n", 7);
+  	}
+  	else Log_Info((uint8_t*)"RES_ERR\n", 8);
+
+  	/*Check Baudrate of EC200*/
+  	Check_Baud_LTE();
+  	/*Check sim detect of EC200 and enable*/
+  	Enable_SIM();
+  	/*Check CPIN of module LTE*/
+  	Check_CPIN_LTE();
+  	/*Select Text mode for SMS*/
+  	Select_Text_Mode();
+  	/*Select ME Memory store sms*/
+  	Select_ME_Memory();
+  	/*Delete ME Memory store sms*/
+  	Delete_Memory_SMS();
+
+  	/**************MQTT TEST ***************/
+  	/***************************************/
+#if TEST_MQTT == 1
+
+	MQTT_Recv_Mode(0, 0, 1);
+	MQTT_Session(0, 0);
+
+
+	#if TEST_MQTT_SSL == 1
+		/*Connect with SSL*/
+		MQTT_SSL_Mode(0, 1, 0);
+		MQTT_SSL_Certificate(0);
+		MQTT_SSL_Level(0, 0);
+		MQTT_SSL_Version(0, 4);
+		MQTT_SSL_Ciphersuite(0, (uint8_t*)"0xFFFF");
+		MQTT_SSL_Ignore(0, 1);
+	#endif
+
+		if(MQTT_Check_Connect() != RESPONSE_OK)
+	{
+			MQTT_Open_Connect();
+	}
+	HAL_Delay(1000);
+	/*Test Pub data*/
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", 5, (uint8_t*)"12345");
+#endif
 
   /*Enable GPS*/
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
   //Quectel_Init();
-  HAL_UART_Receive_IT(&uartGPS, (uint8_t*)rxBuffer, sizeof(rxBuffer));
+  HAL_UART_Receive_IT(&huart2, (uint8_t*)rxBuffer, sizeof(rxBuffer));
 
   /* Print log to indicate that we initialize the program */
   printf("************GTRACK STM32 PROGRAM*************\r\n");
 
   /*TEST GPS PARSE*/
 
+	#if TEST_FLASH == 1
+
+		/* Test Write and Read a byte*/
+		Log_Info((uint8_t*)"Write & Read\r\n", 14);
+		W25Q16_WriteByte(g_data_write, 0x000001);
+		W25Q16_ReadByte(&g_data_read, 0x000001);
+		HAL_Delay(500);
+
+		for (uint8_t i = 0; i < 10; i++)
+		{
+			g_write_buffer[i] = i + 0x30;
+		}
+
+		HAL_Delay(500);
+		Log_Info((uint8_t*)"Write Page\r\n", 12);
+		W25Q16_WritePage(g_write_buffer, 3, 0x03, 10);
+
+		HAL_Delay(500);
+		Log_Info((uint8_t*)"ReadSomeByte\r\n", 14);
+		W25Q16_ReadSomeBytes(g_read_buffer, 0x000303, 10);
+
+		HAL_Delay(500);
+
+		for (uint8_t i = 0; i < 10; i++)
+		{
+				sprintf((char*)g_buffer_log, "%02x\r\n", g_read_buffer[i]);
+				Log_Info((uint8_t*)g_buffer_log, 5);
+		}
+	#endif
+
+
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
-	  if ((HAL_GetTick() - u32CurrentTime) > TIME_5MINUTE)
+	#if (TEST_GPS == 1)
+	  if (((HAL_GetTick() - u32CurrentTime) > TIME_5MINUTE) && (bIsSetGPS == true))
 	  {
+		  bIsInMotion = true;
 		  printf("!!!INMOTION DETECTION!!!\r\n");
+		  bIsSetGPS = false;
+		  bIsMotion = false;
 	  }
 
 	  SC7A20_coordinate_read(&testXYZ);
 	  u8ReceiveTest = SC7A20_read(SC7A20_ADDR_INT1_SOURCE);
-	  //HAL_UART_Receive(&uartLog, (uint8_t*)rxBuffer, (sizeof(rxBuffer) - 1), HAL_MAX_DELAY);
 
 	  if(bIsMotion)
 	  {
+		  /* GPS ENABLE */
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 		  printf("!!!!MOTION DETECTED !!!!!\n\r");
 		  bIsMotion = false;
+		  bIsSetGPS = true;
 	  }
 
-	  /* Print log the Buffer Received from the Quectel L76 */
-	  //printf("%s\n\r",rxBuffer);
+
 
 	  /*printf("******ACCELERATION in 3 AXIS*******\n\r");
 	  printf("Acceleration X: %d\n\r", testXYZ.u16XCoor);
@@ -198,24 +371,72 @@ int main(void)
 	  printf("**********END OF RECEPTION*********\n\n\n\r");
 */
 	  /* Print LOG start the while loop */
-	  printf("\r\n****START THE CONVERSION******\r\n\n");
+	  if(bIsSetGPS)
+	  {
+		    printf("\r\n****START THE CONVERSION******\r\n\n");
 
 
 
-	  char test_GNGGA[100] = {0};
-	  char test_GNRMC[100] = {0};
+		   /* 2 strings to split the GNGAA from the NMEA sent from the Quectel L76 LB */
+			printf("%s\r\n\n", rxBuffer);
+			printf("%d\r\n\n", strlen(rxBuffer));
+			gps_read(testBuffer2, &test_L76, test_GNGGA, test_GNRMC);
 
-	   /* 2 strings to split the GNGAA from the NMEA sent from the Quectel L76 LB */
-		printf("%s\r\n\n", rxBuffer);
-		printf("%d\r\n\n", strlen(rxBuffer));
-		gps_read(testBuffer2, &test_L76, test_GNGGA, test_GNRMC);
+			g_gps_data.long_t.dLongRaw = test_L76.dLongtitude;
+			g_gps_data.lat_t.dLatRaw = test_L76.dLattitude;
 
-		HAL_Delay(500);
-	  //BLINK LED
-	  /*HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7 | GPIO_PIN_8);
-	  HAL_Delay(1000);
-	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7 | GPIO_PIN_8);
-	  HAL_Delay(1000);*/
+			printf("\n\n\rWrite data\r\n");
+
+			for(uint8_t i = 0; i < 8; i++)
+			{
+					g_write_buffer[i] = g_gps_data.long_t.longBytes[i];
+			}
+			for(uint8_t i = 8; i < 16; i++)
+			{
+					g_write_buffer[i] = g_gps_data.lat_t.latBytes[i - 8];
+			}
+
+			W25Q16_WritePage(g_write_buffer, 0, 0x00, 16);
+
+			HAL_Delay(500);
+
+			printf("\n\rRead some bytes \r\n");
+
+			W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 16);
+
+			g_gps_data.long_t.dLongRaw = 0;
+			g_gps_data.lat_t.dLatRaw = 0;
+
+			for(uint8_t i = 0; i < 8; i++)
+			{
+				g_gps_data.long_t.longBytes[i] = g_read_buffer[i];
+			}
+
+			ftoa(g_gps_data.long_t.dLongRaw, g_buff_send, 6);
+
+			MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
+
+			printf("Long: %lf\r\n", g_gps_data.long_t.dLongRaw);
+
+			for(uint8_t i = 0; i < 8; i++)
+			{
+				g_gps_data.lat_t.latBytes[i] = g_read_buffer[i+8];
+			}
+
+			ftoa(g_gps_data.lat_t.dLatRaw, g_buff_send, 6);
+
+			MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
+
+			printf("Lat: %lf\r\n", g_gps_data.lat_t.dLatRaw);
+
+			HAL_Delay(500);
+	  }
+	  else
+	  {
+		  printf("MOTION NOT DETECTED YET !!\r\n");
+	  }
+#endif
+
   }
   /* USER CODE END 3 */
 }
@@ -239,7 +460,12 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 84;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -248,12 +474,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -294,6 +520,89 @@ static void MX_I2C1_Init(void)
 }
 
 /**
+  * @brief SPI2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI2_Init(void)
+{
+
+  /* USER CODE BEGIN SPI2_Init 0 */
+
+  /* USER CODE END SPI2_Init 0 */
+
+  /* USER CODE BEGIN SPI2_Init 1 */
+
+  /* USER CODE END SPI2_Init 1 */
+  /* SPI2 parameter configuration*/
+  hspi2.Instance = SPI2;
+  hspi2.Init.Mode = SPI_MODE_MASTER;
+  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.NSS = SPI_NSS_SOFT;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi2.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI2_Init 2 */
+
+  /* USER CODE END SPI2_Init 2 */
+
+}
+
+/**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 0;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 65535;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -308,15 +617,15 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 1 */
 
   /* USER CODE END USART1_Init 1 */
-  uartLog.Instance = USART1;
-  uartLog.Init.BaudRate = 115200;
-  uartLog.Init.WordLength = UART_WORDLENGTH_8B;
-  uartLog.Init.StopBits = UART_STOPBITS_1;
-  uartLog.Init.Parity = UART_PARITY_NONE;
-  uartLog.Init.Mode = UART_MODE_TX_RX;
-  uartLog.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  uartLog.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&uartLog) != HAL_OK)
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -341,15 +650,15 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 1 */
 
   /* USER CODE END USART2_Init 1 */
-  uartGPS.Instance = USART2;
-  uartGPS.Init.BaudRate = 9600;
-  uartGPS.Init.WordLength = UART_WORDLENGTH_8B;
-  uartGPS.Init.StopBits = UART_STOPBITS_1;
-  uartGPS.Init.Parity = UART_PARITY_NONE;
-  uartGPS.Init.Mode = UART_MODE_TX_RX;
-  uartGPS.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  uartGPS.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&uartGPS) != HAL_OK)
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 9600;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -370,13 +679,18 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_7, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12|WAKEUP_CTRL_Pin|RESET_CTRL_Pin|PWRKEY_CTRL_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
+
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7|GPIO_PIN_8, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PA0 */
@@ -385,19 +699,33 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_4;
+  /*Configure GPIO pins : PA4 PA7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PB12 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12|WAKEUP_CTRL_Pin|PWRKEY_CTRL_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /*Configure GPIO pins : PC7 PC8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_8;
+  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : RESET_CTRL_Pin */
+  GPIO_InitStruct.Pin = RESET_CTRL_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(RESET_CTRL_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
@@ -406,24 +734,22 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+/*void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  /* Prevent unused argument(s) compilation warning */
-	u8StatusInt1++;
-	u32CurrentTime = HAL_GetTick();
+
 	if ( HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET)
 	{
+		u8StatusInt1++;
+		u32CurrentTime = HAL_GetTick();
 		bIsMotion = true;
 	}
 
-	else if ( HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET)
-	{
-		bIsInMotion = true;
-	}
-  /* NOTE: This function Should not be modified, when the callback is needed,
-           the HAL_GPIO_EXTI_Callback could be implemented in the user file
-   */
-}
+//	else if ( HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET)
+//	{
+//		bIsInMotion = true;
+//	}
+
+}*/
 
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -433,8 +759,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_UART_RxCpltCallback could be implemented in the user file
    */
-  HAL_UART_Receive_IT(&uartGPS, (uint8_t*)rxBuffer, sizeof(rxBuffer));
+  HAL_UART_Receive_IT(&huart2, (uint8_t*)rxBuffer, sizeof(rxBuffer));
 }
+
+
 /* USER CODE END 4 */
 
 /**

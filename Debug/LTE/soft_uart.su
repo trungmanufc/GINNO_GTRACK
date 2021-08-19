@@ -1,0 +1,15 @@
+soft_uart.c:17:6:UartEmul_Init	16	static
+soft_uart.c:35:6:HAL_UART_Emul_RxCpltCallback	16	static
+soft_uart.c:44:6:HAL_UART_Emul_ErrorCallback	16	static
+soft_uart.c:56:6:Trans_Data	24	static
+soft_uart.c:76:6:Recv_Data	24	static
+soft_uart.c:101:9:Compare_Str	24	static
+soft_uart.c:119:9:Confirm_OK	16	static
+soft_uart.c:130:9:Check_MQTT	16	static
+soft_uart.c:142:12:Recv_Response	24	static
+soft_uart.c:178:6:Recv_Data_Continue	24	static
+soft_uart.c:204:12:Recv_Response_Continue	24	static
+soft_uart.c:240:6:Get_Paragraph	32	static
+soft_uart.c:254:9:Check_New_Msg	16	static
+soft_uart.c:266:9:Get_ID_Msg	24	static
+soft_uart.c:284:9:Get_Data_Msg	32	static
