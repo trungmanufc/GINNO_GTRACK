@@ -325,17 +325,43 @@ int main(void)
 	else Log_Info((uint8_t*)"RES_ERR\n", 8);
 	
 	/*Check Baudrate of EC200*/
-//	Check_Baud_LTE();
-//	/*Check sim detect of EC200 and enable*/
-//	Enable_SIM();
-//	/*Check CPIN of module LTE*/
-//	Check_CPIN_LTE();
-//	/*Select Text mode for SMS*/
-//	Select_Text_Mode();
-//	/*Select ME Memory store sms*/
-//	Select_ME_Memory();
-//	/*Delete ME Memory store sms*/
-//	Delete_Memory_SMS();
+	Check_Baud_LTE();
+	/*Check sim detect of EC200 and enable*/
+	Enable_SIM();
+	/*Check CPIN of module LTE*/
+	Check_CPIN_LTE();
+	/*Select Text mode for SMS*/
+	Select_Text_Mode();
+	/*Select ME Memory store sms*/
+	Select_ME_Memory();
+	/*Delete ME Memory store sms*/
+	Delete_Memory_SMS();
+	
+	/*Test disable LTE module*/
+	PWRCRL_OFF_LTE();
+	Disable_LTE();
+	HAL_Delay(5000);
+	Log_Info((uint8_t*)"Re-Enable\n", 10);
+	Enable_LTE();
+	HAL_Delay(500);
+	Blynk();
+  
+	/*Wait util init LTE success*/
+	HAL_Delay(15000);
+	Blynk();
+	Log_Info((uint8_t*)"Done\n", 5);
+	/*Check Baudrate of EC200*/
+	Check_Baud_LTE();
+	/*Check sim detect of EC200 and enable*/
+	Enable_SIM();
+	/*Check CPIN of module LTE*/
+	Check_CPIN_LTE();
+	/*Select Text mode for SMS*/
+	Select_Text_Mode();
+	/*Select ME Memory store sms*/
+	Select_ME_Memory();
+	/*Delete ME Memory store sms*/
+	Delete_Memory_SMS();
 	
 	#if TEST_MQTT == 1
 	

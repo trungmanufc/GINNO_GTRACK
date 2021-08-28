@@ -21,10 +21,47 @@
 #define LED_GPS							GPIO_PIN_8
 
 /*Hard control Module LTE*/
+
+/**
+  * @brief  Hard Reset Module
+  * @param  none
+  * @retval none
+  */
 void Reset_LTE(void);
+
+/**
+  * @brief  Hard Power On Module
+  * @param  none
+  * @retval none
+  */
 void PWRCRL_ON_LTE(void);
+
+/**
+  * @brief	Power Off use AT command
+  * @param  none
+  * @retval none
+  */
 void PWRCRL_OFF_LTE(void);
+
+/**
+  * @brief  Enable Power supply
+  * @param  none
+  * @retval none
+  */
 void Enable_LTE(void);
+
+/**
+  * @brief  Disable Power supply. This function have to use after PWRCRL_OFF_LTE()
+  * @param  none
+  * @retval none
+  */
+void Disable_LTE(void);
+
+/**
+  * @brief  Blynk 2 leds once
+  * @param  none
+  * @retval none
+  */
 void Blynk(void);
 
 /**

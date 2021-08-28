@@ -12,6 +12,11 @@ extern uint32_t g_timeNow;
 
 /*Hard control Module LTE*/
 
+/**
+  * @brief  Hard Reset Module
+  * @param  none
+  * @retval none
+  */
 void Reset_LTE(void)
 {
 		HAL_GPIO_WritePin(RESET_CTRL_PORT, RESET_CTRL_PIN, GPIO_PIN_RESET);
@@ -20,6 +25,12 @@ void Reset_LTE(void)
 		HAL_Delay(350);
 		HAL_GPIO_WritePin(RESET_CTRL_PORT, RESET_CTRL_PIN, GPIO_PIN_RESET);
 }
+
+/**
+  * @brief  Hard Power On Module
+  * @param  none
+  * @retval none
+  */
 void PWRCRL_ON_LTE(void)
 {
 		HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_RESET);
@@ -28,19 +39,47 @@ void PWRCRL_ON_LTE(void)
 		HAL_Delay(550);
 		HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_RESET);
 }
+
+/**
+  * @brief	Power Off use AT command
+  * @param  none
+  * @retval none
+  */
 void PWRCRL_OFF_LTE(void)
 {
+		//keep Power Key at high level
 		HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_RESET);
-		HAL_Delay(100);
-		HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_SET);
-		HAL_Delay(670);
-		HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_RESET);
+		HAL_Delay(1000);			
+		Trans_Data(&UartEmulHandle, (uint8_t*)"0AT+QPOWD\r", 10);
+		if(Recv_Response(&UartEmulHandle, 300) == RESPONSE_OK) Log_Info((uint8_t*)"RES_OK\n", 7);
+		else Log_Info((uint8_t*)"RES_ERR\n", 8);	
 }
+
+/**
+  * @brief  Enable Power supply
+  * @param  none
+  * @retval none
+  */
 void Enable_LTE(void)
 {
 		HAL_GPIO_WritePin(PWR_EN_PORT, PWR_EN_PIN, GPIO_PIN_RESET);
 }
 
+/**
+  * @brief  Disable Power supply. This function have to use after PWRCRL_OFF_LTE()
+  * @param  none
+  * @retval none
+  */
+void Disable_LTE(void)
+{
+		HAL_GPIO_WritePin(PWR_EN_PORT, PWR_EN_PIN, GPIO_PIN_SET);
+}
+
+/**
+  * @brief  Blynk 2 leds once
+  * @param  none
+  * @retval none
+  */
 void Blynk(void)
 {
 		HAL_GPIO_TogglePin(LED_PORT, LED_PWR|LED_GPS);	//on led
