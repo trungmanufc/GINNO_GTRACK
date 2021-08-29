@@ -23,9 +23,9 @@ uint8_t Quectel_Init(void)
 
 	char cGps10HzFix[100] = "$PMTK220,100*1F\r\n";
 
-	HAL_UART_Transmit_IT(&huart2, (uint8_t*)cGps10HzFix, strlen(cGps10HzFix));
+	HAL_UART_Transmit(&huart2, (uint8_t*)cGps10HzFix, strlen(cGps10HzFix), HAL_MAX_DELAY);
 
-	if(HAL_UART_Transmit_IT(&huart2, (uint8_t*)cGpsOnly, strlen(cGpsOnly)) != HAL_OK)
+	if(HAL_UART_Transmit(&huart2, (uint8_t*)cGpsOnly, strlen(cGpsOnly), HAL_MAX_DELAY) != HAL_OK)
 	{
 		return HAL_ERROR;
 	}
@@ -378,4 +378,16 @@ static void L76_Date_Parse(char* sRmcDate, L76* pL76Handle)
 	/* Test */
 	printf("Date: %d/%d/%d \r\n", pL76Handle->u8Day, pL76Handle->u8Month, pL76Handle->u16Year);
 
+}
+
+void gps_power_EnOrDi(uint8_t u8EnOrDi)
+{
+	if (u8EnOrDi == ENABLE)
+	{
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+	}
 }

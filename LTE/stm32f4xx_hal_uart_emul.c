@@ -121,7 +121,7 @@
 extern uint8_t u8StatusInt1;
 extern bool bIsMotion;
 extern uint32_t u32CurrentTime;
-
+extern bool bIsSetGPS;
 
 
 extern UART_HandleTypeDef huart1;
@@ -518,6 +518,7 @@ void UART_EMUL_EXTI_RX(uint16_t GPIO_Pin)
 			u8StatusInt1++;
 			u32CurrentTime = HAL_GetTick();
 			bIsMotion = true;
+			bIsSetGPS = true;
 		}
 
 		else if (GPIO_Pin == UART_EMUL_RX_PIN)

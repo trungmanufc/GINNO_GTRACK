@@ -49,6 +49,7 @@ typedef struct
   */
 uint8_t Quectel_Init(void);
 
+
 /**
   * @brief  Parse the NMEA string and save the information needed into L76 structure
   * @param  sL76: pointer to GPS info structure
@@ -57,6 +58,17 @@ uint8_t Quectel_Init(void);
   * @retval none
   */
 void gps_read(char*	sRxBuffer, L76* sL76, char *seGNGGA, char* seGNRMC);
+
+
+/**
+  * @brief  Enable or disable the power of GPS Module
+  * @param  u8EnOrDi: DISABLE or ENABLE
+  *
+  * @retval none
+  */
+void gps_power_EnOrDi(uint8_t u8EnOrDi);
+
+
 
 #endif /* L76_H_ */
 

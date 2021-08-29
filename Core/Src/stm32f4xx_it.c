@@ -236,6 +236,7 @@ void USART2_IRQHandler(void)
 void UART_EMUL_EXTI_IRQHandler (void)
 {
   HAL_GPIO_EXTI_IRQHandler(UART_EMUL_RX_PIN);
+  //printf("Detected SOFTUART!!!\r\n");
 }
 
 

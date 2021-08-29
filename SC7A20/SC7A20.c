@@ -41,7 +41,7 @@ uint8_t SC7A20_Init()
 	SC7A20_setMotionTHS(16);
 
 	/*8. Set duration of INT1 to 10*/
-	SC7A20_setInt1Duration(2);
+	SC7A20_setInt1Duration(1);
 
 	/*10. Read back the data from CTRL1, if the data is successfully writen, the initialization is successful*/
 	if (SC7A20_read(SC7A20_ADDR_CTRL_REG1) == SC7A20_CR1_NORMAL_400HZ_EN)
