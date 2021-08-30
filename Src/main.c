@@ -285,7 +285,9 @@ int main(void)
 	HAL_Delay(15000);
 	Blynk();
 	Log_Info((uint8_t*)"Done\n", 5);
-
+	/*Change default baudrate of LTE module*/
+	Set_Baud_LTE_4800();
+	Log_Info((uint8_t*)"Changed Baud\n", 13);
   /* USER CODE END 2 */
 
   /* Infinite loop */

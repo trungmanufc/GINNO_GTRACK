@@ -27,6 +27,26 @@ void UartEmul_Init(UART_Emul_HandleTypeDef *huart)
 				HAL_Delay(500);
 		}
 }
+
+/**
+  * @brief  Initializes the UART Emulation with baudrate 115200
+  * @param  huart: UART Emulation Handle
+  * @retval None
+  */
+void UartEmul_Init_115200(UART_Emul_HandleTypeDef *huart)
+{
+		huart->Init.Mode        = UART_EMUL_MODE_TX_RX;
+		huart->Init.BaudRate    = 115200; //9600; //115200;
+		huart->Init.StopBits    = UART_EMUL_STOPBITS_1;
+		huart->Init.Parity      = UART_EMUL_PARITY_NONE;
+		huart->Init.WordLength  = UART_EMUL_WORDLENGTH_8B;
+		
+		if (HAL_UART_Emul_Init(huart) != HAL_OK)
+		{
+				HAL_Delay(500);
+		}
+}
+
 /**
   * @brief  Receive data complete callback
   * @param  huart: UART Emulation Handle
@@ -58,6 +78,26 @@ void Trans_Data(UART_Emul_HandleTypeDef * huart, uint8_t *pData, uint16_t Size)
 		UartEmul_Init(huart);
 		HAL_Delay(10);
 		UartEmul_Init(huart);
+		HAL_Delay(10);
+		if (HAL_UART_Emul_Transmit_DMA(huart, pData, Size) != HAL_OK)
+		{
+				Log_Info((uint8_t*)"Error_Handler\n", 14);
+		}
+		while (__HAL_UART_EMUL_GET_FLAG(huart, UART_EMUL_FLAG_TC) != SET){};
+}
+
+/**
+  * @brief  Transmit a string data with baudrate 115200
+  * @param  huart: UART Emulation Handle
+	* @param  pData: pointer to data string
+	* @param  Size: size of data
+  * @retval None
+  */
+void Trans_Data_115200(UART_Emul_HandleTypeDef * huart, uint8_t *pData, uint16_t Size)
+{
+		UartEmul_Init_115200(huart);
+		HAL_Delay(10);
+		UartEmul_Init_115200(huart);
 		HAL_Delay(10);
 		if (HAL_UART_Emul_Transmit_DMA(huart, pData, Size) != HAL_OK)
 		{

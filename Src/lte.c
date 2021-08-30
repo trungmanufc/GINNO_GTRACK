@@ -139,6 +139,19 @@ void Enable_SIM(void)
 }
 
 /**
+  * @brief  Set Baudrate LTE is 4800
+  * @param  none
+  * @retval none
+  */
+void Set_Baud_LTE_4800(void)
+{
+		HAL_Delay(1000);			
+		Trans_Data_115200(&UartEmulHandle, (uint8_t*)"AT+IPR=4800;&W\r", 15);
+		if(Recv_Response_Continue(&UartEmulHandle, 350) == RESPONSE_OK) Log_Info((uint8_t*)"RES_OK\n", 7);
+				else Log_Info((uint8_t*)"RES_ERR\n", 8);	
+}
+
+/**
   * @brief  Check present baudrate of LTE module and log
   * @param  none
   * @retval none

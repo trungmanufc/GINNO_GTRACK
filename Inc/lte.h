@@ -127,6 +127,13 @@ uint8_t Check_Detect_Sim(void);
 void Enable_SIM(void);
 
 /**
+  * @brief  Set Baudrate LTE is 4800
+  * @param  none
+  * @retval none
+  */
+void Set_Baud_LTE_4800(void);
+
+/**
   * @brief  Check present baudrate of LTE module and log
   * @param  none
   * @retval none

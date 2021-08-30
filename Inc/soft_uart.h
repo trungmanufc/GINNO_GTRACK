@@ -26,6 +26,13 @@ typedef enum
 void UartEmul_Init(UART_Emul_HandleTypeDef *huart);
 
 /**
+  * @brief  Initializes the UART Emulation with baudrate 115200
+  * @param  huart: UART Emulation Handle
+  * @retval None
+  */
+void UartEmul_Init_115200(UART_Emul_HandleTypeDef *huart);
+	
+/**
   * @brief  Transmit a string data
   * @param  huart: UART Emulation Handle
 	* @param  pData: pointer to data string
@@ -34,6 +41,16 @@ void UartEmul_Init(UART_Emul_HandleTypeDef *huart);
   */
 void Trans_Data(UART_Emul_HandleTypeDef * huart, uint8_t *pData, uint16_t Size);
 
+
+/**
+  * @brief  Transmit a string data with baudrate 115200
+  * @param  huart: UART Emulation Handle
+	* @param  pData: pointer to data string
+	* @param  Size: size of data
+  * @retval None
+  */
+void Trans_Data_115200(UART_Emul_HandleTypeDef * huart, uint8_t *pData, uint16_t Size);
+	
 /**
   * @brief  Receive a byte data, copy to 'g_recv_byte' variable
   * @param  huart: UART Emulation Handle
