@@ -57,7 +57,10 @@ uint8_t Quectel_Init(void);
   *
   * @retval none
   */
-void gps_read(char*	sRxBuffer, L76* sL76, char *seGNGGA, char* seGNRMC);
+void gps_read(char*	sRxBuffer,
+			  L76* sL76,
+			  char *seGNGGA,
+			  char* seGNRMC);
 
 
 /**

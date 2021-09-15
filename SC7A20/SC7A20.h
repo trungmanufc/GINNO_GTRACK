@@ -74,6 +74,8 @@
 #define SC7A20_CR2_INT_RST_FILTER	0x00
 #define SC7A20_CR5_4D_DISABLE		0x00
 #define SC7A20_CR4_2G				0x38
+#define SC7A20_INT_THRESHOLD		16
+#define SC7A20_DURATION				1
 
 /**
   * @brief SC7A20 3-Axis acceleration structure definition

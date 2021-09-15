@@ -23,7 +23,7 @@
 /*Hard control Module LTE*/
 void Reset_LTE(void);
 void PWRCRL_ON_LTE(void);
-void PWRCRL_OFF_LTE(void);
+void LTE_PWRCRL_OFF(void);
 void Enable_LTE(void);
 void Blynk(void);
 
@@ -47,6 +47,20 @@ typedef struct
         uint8_t latBytes[8];
     } lat_t;
 
+    /*!<Date Fields*/
+    uint8_t u8Day;
+    uint8_t u8Month;
+
+    union
+    {
+    	uint16_t u16YearRaw;
+    	uint8_t yearBytes[2];
+    } year_t;
+
+    /*!<Time Fields*/
+    uint8_t u8Hour;
+    uint8_t u8Minute;
+    uint8_t u8Second;
 } GPS_t;
 
 /**
@@ -144,6 +158,13 @@ response_t MQTT_Open(uint8_t clientIndex,
 										 uint8_t* hostName, uint16_t port);
 
 /**
+  * @brief  Close a Network for MQTT Client
+    * @param  clientIndex: MQTT client identifier (0-5)
+  * @retval OK or ERR
+  */
+response_t MQTT_Close(uint8_t clientIndex);
+
+/**
   * @brief  Connect a Client to MQTT Server
 	* @param  clientIndex: MQTT client identifier (0-5)
 	* @param  clientID: The client identifier
@@ -162,7 +183,7 @@ response_t MQTT_Check_Connect(void);
 
 /**
   * @brief  Publish data to MQTT Topic
-	* @param  msgId: Message identifier of packet. Range: 0–65535. It will be 0 only when QoS = 0
+	* @param  msgId: Message identifier of packet. Range: 0ï¿½65535. It will be 0 only when QoS = 0
 	* @param  QoS: The QoS level at which the client wants to publish the messages (0-2)
 	* @param  retain: retain the message after it has been delivered to the current subscribers (0 or 1)
 	* @param  topic: topic to publish

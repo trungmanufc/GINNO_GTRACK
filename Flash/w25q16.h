@@ -320,6 +320,9 @@ uint8_t intToStr(uint32_t inputNum, char* str, uint8_t numDigit);
  */
 void ftoa(double number, char* res, uint8_t afterPoint);
 
+/*Functions relate convert uint16_t to string*/
+void u16_to_String(char* res, uint16_t inputValue);
+
 #endif
 
 /*****************EOF*****************/

@@ -28,13 +28,14 @@ void PWRCRL_ON_LTE(void)
 		HAL_Delay(550);
 		HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_RESET);
 }
-void PWRCRL_OFF_LTE(void)
+void LTE_PWRCRL_OFF(void)
 {
-		HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_RESET);
-		HAL_Delay(100);
-		HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_SET);
-		HAL_Delay(670);
-		HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_RESET);
+	/* keep Power Key at high level */
+	HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_RESET);
+	HAL_Delay(1000);
+	Trans_Data(&UartEmulHandle, (uint8_t*)"0AT+QPOWD\r", 10);
+	if(Recv_Response(&UartEmulHandle, 300) == RESPONSE_OK) Log_Info((uint8_t*)"RES_OK\n", 7);
+	else Log_Info((uint8_t*)"RES_ERR\n", 8);
 }
 void Enable_LTE(void)
 {
@@ -258,6 +259,32 @@ response_t MQTT_Open(uint8_t clientIndex,
 		}
 		HAL_Delay(MAX_WAIT_TIME);
 		return RESPONSE_ERR;
+}
+
+
+/**
+  * @brief  Close a Network for MQTT Client
+    * @param  clientIndex: MQTT client identifier (0-5)
+  * @retval OK or ERR
+  */
+response_t MQTT_Close(uint8_t clientIndex)
+{
+        HAL_Delay(1000);
+
+        uint8_t lenBuffTrans = 15;
+        sprintf((char*) g_buff_temp, "0AT+QMTCLOSE=%d\r", clientIndex);
+        Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, lenBuffTrans);
+        /*wait response of + QMTCLOSE*/
+        Recv_Response(&UartEmulHandle, WAIT_OPEN);
+        Get_Paragraph(g_buff_temp, g_recv_buff, g_count_temp - 3, g_count_temp - 3);
+        if(Compare_Str(g_buff_temp, (uint8_t*)"0", 1))
+        {
+                Log_Info((uint8_t*)"Close Success!\n", 14);
+                HAL_Delay(MAX_WAIT_TIME);
+                return RESPONSE_OK;
+        }
+        HAL_Delay(MAX_WAIT_TIME);
+        return RESPONSE_ERR;
 }
 
 /**
@@ -650,7 +677,7 @@ response_t HTTP_Get_Range(uint8_t* rspTime,
 {
 		HAL_Delay(MAX_WAIT_TIME);
 		uint8_t lenBuffTrans = 18 + strlen((char*)rspTime) + strlen((char*)startPosition) + lenOfRange;
-		sprintf((char*)g_buff_temp, "0AT+QHTTPGETEX=%s,%s,%d\r", rspTime, startPosition, range);
+		sprintf((char*)g_buff_temp, "0AT+QHTTPGETEX=%s,%s,%d\r", rspTime, startPosition, (int)range);
 		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, lenBuffTrans);
 		Recv_Response(&UartEmulHandle, 5000);
 		Get_Paragraph(g_buff_temp, g_recv_buff, lenBuffTrans + 18, lenBuffTrans + 8);

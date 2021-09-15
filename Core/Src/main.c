@@ -28,6 +28,7 @@
 #include<string.h>
 #include"L76.h"
 #include"w25q16.h"
+#include <stdlib.h>
 
 
 /* USER CODE END Includes */
@@ -39,11 +40,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TEST_MQTT		0
-#define TEST_MQTT_SSL	0
+#define TEST_MQTT		1
+#define TEST_MQTT_SSL	1
 #define TEST_FLASH 		0
 #define MAX_SIZE_BUFF	256
 #define TEST_GPS		1
+#define TEST_CONNECT	1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -75,20 +77,20 @@ static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
-uint8_t u8SC7A20Error = RESET;
-uint8_t u8I2cTest = RESET;
-uint8_t u8Test = SC7A20_ADDR_CTRL_REG1;
-uint8_t u8ReceiveTest = RESET;
-uint8_t u8Data = 0;
-Coordinate_t testXYZ;
-uint8_t isMotion = RESET;
+uint8_t g_u8SC7A20Error = RESET;
+uint8_t g_u8I2cTest = RESET;
+uint8_t g_u8Test = SC7A20_ADDR_CTRL_REG1;
+uint8_t g_u8ReceiveTest = RESET;
+uint8_t g_u8Data = 0;
+Coordinate_t g_testXYZ;
+uint8_t g_isMotion = RESET;
 //uint8_t isInMotion = RESET;
-uint8_t u8StatusInt1 = 0;
-bool bIsMotion = false;
-bool bIsInMotion = false;
-bool bIsSetGPS = false;
-bool bIsStop = false;
-uint32_t u32CurrentTime = 0;
+uint8_t g_u8StatusInt1 = 0;
+bool g_bIsMotion = false;
+bool g_bIsInMotion = false;
+bool g_bIsSetGPS = false;
+bool g_bIsStop = false;
+uint32_t g_u32CurrentTime = 0;
 
 
 /**
@@ -105,6 +107,10 @@ uint8_t 		g_data_write = 0x89;
 uint8_t 		g_data_read = 0;
 GPS_t   		g_gps_data = {0};
 
+char 			g_buff_send[30] = {0};
+char			g_buff_send_year[2] = {0};
+char 			g_buff_send_date[2] = {0};
+char 			g_buff_send_time[2] = {0};
 
 UART_Emul_HandleTypeDef UartEmulHandle;
 
@@ -118,13 +124,14 @@ uint8_t 		g_buff_temp[MAX_SIZE_BUFF] = {0};
 uint8_t 		g_id_msg = 0, g_size_sms = 0, g_size_IP = 0;
 uint8_t 		g_mqtt_isOn = OFF;
 uint32_t 		g_timeNow = 0;
-char 			g_buff_send[30] = {0};
+
 
 static void softUART_DeInit(void);
 static void softUART_ReInit(void);
 static void LTE_Disable(void);
 static void FlashMQTT_WriteRead(void);
 static void Wakeup_CallBack(void);
+static void Stop_Callback(void);
 static void LTE_Init(void);
 static void Flash_Init(void);
 
@@ -145,24 +152,14 @@ PUTCHAR_PROTOTYPE
 	return ch;
 }
 
-
-
-
-
-char* testBuffer2 = "$GNRMC,152657.000,A,2057.82025,N,10549.33270,E,0.00,0.00,060821,,,A,V*04\r\n$GNGGA,152658.000,2057.82021,N,10549.33274,E,1,12,1.0,46.7,M,-27.8,M,,*59\r\n";
+char* g_testBuffer2 = "$GNRMC,152657.000,A,2057.82025,N,10549.33270,E,0.00,0.00,060821,,,A,V*04\r\n$GNGGA,152658.000,2057.82021,N,10549.33274,E,1,12,1.0,46.7,M,-27.8,M,,*59\r\n";
 
 /* The Rx Buffer from the Quectel L76 LB */
-char rxBuffer[1000];
+char g_rxBuffer[1000];
 
-char *testBuffer = "$GNRMC,573843,A,3349.896,N,11808.521,W,000.0,360.0,230108,013.4,E*69\r\n$GNGGA,185833.80,4808.7402397,S,01133.9325039,W,1,15,1.1,470.50,M,45.65,M,,*75\r\n";
-/* Strings to parse the GPGGA NMEA */
+char *g_testBuffer = "$GNRMC,573843,A,3349.896,N,11808.521,W,000.0,360.0,230108,013.4,E*69\r\n$GNGGA,185833.80,4808.7402397,S,01133.9325039,W,1,15,1.1,470.50,M,45.65,M,,*75\r\n";
 
-char *sL76Time = '\0';
-char *sL76Lat = '\0';
-/* 2 strings to split the GNGAA from the NMEA sent from the Quectel L76 LB */
-//char *sSubGPS = '\0';
-char *sGNGGA ;
-L76 test_L76;
+L76 g_test_L76;
 char* testComma = "GNGGA,185833.80,4808.7402397,N,01133.9325039,E,0,15,1.1,470.50,M,45.65,M,,*75";
 uint8_t testIndexofComma[20];
 
@@ -205,46 +202,51 @@ response_t MQTT_Open_Connect(void)
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-	  char test_GNGGA[100] = {0};
-	  char test_GNRMC[100] = {0};
-  /* USER CODE END 1 */
+    /* USER CODE BEGIN 1 */
+	char test_GNGGA[100] = {0};
+	char test_GNRMC[100] = {0};
+	/* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+	/* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+  	/* USER CODE BEGIN SysInit */
+    g_test_L76.u8Day = 10;
+    g_test_L76.u8Hour = 0;
+    g_test_L76.u8Minute = 0;
+    g_test_L76.u8Month = 0;
+    g_test_L76.u8Second = 0;
+    g_test_L76.u16Year = 2000;
+    /* USER CODE END SysInit */
 
-  /* USER CODE END SysInit */
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_I2C1_Init();
+    MX_USART2_UART_Init();
+    MX_USART1_UART_Init();
+    MX_SPI2_Init();
+    MX_TIM3_Init();
+    /* USER CODE BEGIN 2 */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_I2C1_Init();
-  MX_USART2_UART_Init();
-  MX_USART1_UART_Init();
-  MX_SPI2_Init();
-  MX_TIM3_Init();
-  /* USER CODE BEGIN 2 */
+    /* Acce init */
+    g_u8Test = SC7A20_Init();
 
-  /* Acce init */
-  u8Test = SC7A20_Init();
+    /* Flash memory init */
+    Flash_Init();
 
-  /* Flash memory init */
-  Flash_Init();
+    HAL_Delay(500);
 
-  HAL_Delay(500);
-
-  /* LTE module Init */
-  LTE_Init();
+    /* LTE module Init */
+    LTE_Init();
 
   	/**************MQTT TEST ***************/
   	/***************************************/
@@ -264,16 +266,20 @@ int main(void)
 			MQTT_SSL_Ignore(0, 1);
 		#endif
 
-			if(MQTT_Check_Connect() != RESPONSE_OK)
+		if (MQTT_Check_Connect() != RESPONSE_OK)
 		{
-				MQTT_Open_Connect();
+			MQTT_Open_Connect();
 		}
 		HAL_Delay(1000);
 		/*Test Pub data*/
 		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", 5, (uint8_t*)"12345");
 	#endif
 
-	HAL_UART_Receive_IT(&huart2, (uint8_t*)rxBuffer, sizeof(rxBuffer));
+	/* Enable the power of GPS module */
+	gps_power_EnOrDi(ENABLE);
+
+	HAL_UART_Receive_IT(&huart2, (uint8_t*)g_rxBuffer, sizeof(g_rxBuffer));
+
 
 	/* Print log to indicate that we initialize the program */
 	printf("************GTRACK STM32 PROGRAM*************\r\n");
@@ -312,74 +318,54 @@ int main(void)
 
 
 
-  /* USER CODE END 2 */
+    /* USER CODE END 2 */
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
+    while (1)
+    {
+    	/* USER CODE END WHILE */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
-  while (1)
-  {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
+    	/* USER CODE BEGIN 3 */
 	#if (TEST_GPS == 1)
 
-	  /* Check whether the inmotion state lasts 5 minutes or not */
-	  if (((HAL_GetTick() - u32CurrentTime) > TIME_5MINUTE) && (bIsSetGPS == true))
-	  {
-		  bIsInMotion = true;
-		  printf("!!!INMOTION DETECTION!!!\r\n");
-		  bIsSetGPS = false;
-		  bIsMotion = false;
-	  }
+		/* Check whether the inmotion state lasts 5 minutes or not */
+		if (((HAL_GetTick() - g_u32CurrentTime) > TIME_5MINUTE) && (g_bIsSetGPS == true))
+		{
+			g_bIsInMotion = true;
+			printf("!!!INMOTION DETECTION!!!\r\n");
+			g_bIsSetGPS = false;
+			g_bIsMotion = false;
+		}
 
-	  SC7A20_coordinate_read(&testXYZ);							/* Debug purpose */
-	  u8ReceiveTest = SC7A20_read(SC7A20_ADDR_INT1_SOURCE);  	/* Debug purpose */
+		SC7A20_coordinate_read(&g_testXYZ);							/* Debug purpose */
+		g_u8ReceiveTest = SC7A20_read(SC7A20_ADDR_INT1_SOURCE);  	/* Debug purpose */
 
-	  /* Motion detected after stop mode */
-	  if(bIsMotion && bIsStop)
-	  {
-		  Wakeup_CallBack();
-	  }
+		/* Motion detected after stop mode */
+		if(g_bIsMotion && g_bIsStop)
+		{
+			Wakeup_CallBack();
+		}
 
-	  /* If the motion is detected, the GPS will get data and then publish the data to MQTT server */
-	  if(bIsSetGPS)
-	  {
-		  /* Ensure that the power of GPS module is turned on */
-		  gps_power_EnOrDi(ENABLE);
+		/* If the motion is detected, the GPS will get data and then publish the data to MQTT server */
+		if(g_bIsSetGPS)
+		{
+			/* Ensure that the power of GPS module is turned on */
+			gps_power_EnOrDi(ENABLE);
 
-		  printf("\r\n****START THE CONVERSION******\r\n\n");
+			printf("\r\n****START THE CONVERSION******\r\n\n");
 
-		  /* 2 strings to split the GNGAA from the NMEA sent from the Quectel L76 LB */
-		  printf("%s\r\n\n", rxBuffer);
-		  printf("%d\r\n\n", strlen(rxBuffer));
-		  gps_read(rxBuffer, &test_L76, test_GNGGA, test_GNRMC);
+			/* 2 strings to split the GNGAA from the NMEA sent from the Quectel L76 LB */
+			printf("%s\r\n\n", g_rxBuffer);
+			printf("%d\r\n\n", strlen(g_rxBuffer));
+			gps_read(g_testBuffer, &g_test_L76, test_GNGGA, test_GNRMC);
 
-		  /* Write to Flash, Read from Flash and then publish the infos to MQTT serser */
-		  FlashMQTT_WriteRead();
-	  }
-	  else					/* InMotion status */
-	  {
-		  printf("MOTION NOT DETECTED YET !!\r\n");
-
-		  /* Disable GPS Module */
-		  gps_power_EnOrDi(DISABLE);
-
-		  /* DeInit the RX pin of UART */
-		  softUART_DeInit();
-
-		  /* LTE POWER DISABLE */
-		  LTE_Disable();
-
-		  /* Enter sleep mode */
-		  printf("Enter Stop Mode:\r\n");
-
-		  bIsStop = true;
-
-		  HAL_SuspendTick();
-
-		  HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
-	  }
+			/* Write to Flash, Read from Flash and then publish the infos to MQTT serser */
+			FlashMQTT_WriteRead();
+		}
+		else					/* InMotion status */
+		{
+			Stop_Callback();
+		}
 
 	#endif
 
@@ -688,7 +674,7 @@ static void LTE_Disable(void)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-  HAL_UART_Receive_IT(&huart2, (uint8_t*)rxBuffer, sizeof(rxBuffer));
+  HAL_UART_Receive_IT(&huart2, (uint8_t*)g_rxBuffer, sizeof(g_rxBuffer));
 }
 
 static void softUART_DeInit(void)
@@ -715,8 +701,14 @@ static void softUART_ReInit(void)
 
 static void FlashMQTT_WriteRead(void)
 {
-	g_gps_data.long_t.dLongRaw = test_L76.dLongtitude;
-	g_gps_data.lat_t.dLatRaw = test_L76.dLattitude;
+	g_gps_data.long_t.dLongRaw = g_test_L76.dLongtitude;
+	g_gps_data.lat_t.dLatRaw = g_test_L76.dLattitude;
+	g_gps_data.u8Month = g_test_L76.u8Month;
+	g_gps_data.u8Day = g_test_L76.u8Day;
+	g_gps_data.year_t.u16YearRaw = g_test_L76.u16Year;
+	g_gps_data.u8Hour = g_test_L76.u8Hour;
+	g_gps_data.u8Minute = g_test_L76.u8Minute;
+	g_gps_data.u8Second = g_test_L76.u8Second;
 
 	printf("\n\n\rWrite data\r\n");
 
@@ -729,101 +721,189 @@ static void FlashMQTT_WriteRead(void)
 			g_write_buffer[i] = g_gps_data.lat_t.latBytes[i - 8];
 	}
 
-	W25Q16_WritePage(g_write_buffer, 0, 0x00, 16);
+	g_write_buffer[16] = g_gps_data.u8Day;
+	g_write_buffer[17] = g_gps_data.u8Month;
+	g_write_buffer[18] = g_gps_data.year_t.yearBytes[0];
+	g_write_buffer[19] = g_gps_data.year_t.yearBytes[1];
+	g_write_buffer[20] = g_gps_data.u8Hour;
+	g_write_buffer[21] = g_gps_data.u8Minute;
+	g_write_buffer[22] = g_gps_data.u8Second;
+
+	W25Q16_WritePage(g_write_buffer, 0, 0x00, 23);
+
+
 
 	HAL_Delay(500);
 
 	printf("\n\rRead some bytes \r\n");
 
-	W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 16);
+	W25Q16_ReadSomeBytes(g_read_buffer, 0x00, 23);
 
 	g_gps_data.long_t.dLongRaw = 0;
 	g_gps_data.lat_t.dLatRaw = 0;
+	g_gps_data.u8Day = 0;
+	g_gps_data.u8Month = 0;
+	g_gps_data.year_t.u16YearRaw = 0;
+	g_gps_data.u8Hour = 0;
+	g_gps_data.u8Minute = 0;
+	g_gps_data.u8Second = 0;
 
+	/* Read and pub longitude */
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		g_gps_data.long_t.longBytes[i] = g_read_buffer[i];
 	}
-
-	ftoa(g_gps_data.long_t.dLongRaw, g_buff_send, 6);
-
+	memset(g_buff_send, '\0', sizeof(g_buff_send));
+	sprintf(g_buff_send, "%f", g_gps_data.long_t.dLongRaw);
 	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
-
 	printf("Long: %lf\r\n", g_gps_data.long_t.dLongRaw);
 
+	/* Read and pub latitude */
 	for (uint8_t i = 0; i < 8; i++)
 	{
 		g_gps_data.lat_t.latBytes[i] = g_read_buffer[i+8];
 	}
-
-	ftoa(g_gps_data.lat_t.dLatRaw, g_buff_send, 6);
-
+	memset(g_buff_send, '\0', sizeof(g_buff_send));
+	sprintf(g_buff_send, "%f", g_gps_data.lat_t.dLatRaw);
 	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
-
 	printf("Lat: %lf\r\n", g_gps_data.lat_t.dLatRaw);
 
+	/* Read and pub date */
+	g_gps_data.u8Day = g_read_buffer[16];
+	u16_to_String(g_buff_send_date, g_gps_data.u8Day);
+	printf("Day string: %s\r\n", g_buff_send_date);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_date), (uint8_t*)g_buff_send_date);
+	memset(g_buff_send_date, '\0', 2);
+
+	/* Read and pub month */
+	g_gps_data.u8Month = g_read_buffer[17];
+	u16_to_String(g_buff_send_date, g_gps_data.u8Month);
+	printf("month string %s\r\n", g_buff_send_date);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_date), (uint8_t*)g_buff_send_date);
+	memset(g_buff_send_date, '\0', 2);
+
+	/* Read and pub year */
+	g_gps_data.year_t.yearBytes[0] = g_read_buffer[18];
+	g_gps_data.year_t.yearBytes[1] = g_read_buffer[19];
+	u16_to_String(g_buff_send_year, g_gps_data.year_t.u16YearRaw);
+	printf("Year string: %s\r\n",g_buff_send_year);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_year), (uint8_t*)g_buff_send_year);
+	memset(g_buff_send_year, '\0', 2);
+
+	/* Read and pub hour */
+	g_gps_data.u8Hour = g_read_buffer[20];
+	u16_to_String(g_buff_send_time, g_gps_data.u8Hour);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_time), (uint8_t*)g_buff_send_time);
+	memset(g_buff_send_time, '\0', 2);
+
+	/* Read and pub minute */
+	g_gps_data.u8Minute = g_read_buffer[21];
+	u16_to_String(g_buff_send_time, g_gps_data.u8Minute);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_time), (uint8_t*)g_buff_send_time);
+	memset(g_buff_send_time, '\0', 2);
+
+	/* Read and pub second */
+	g_gps_data.u8Second = g_read_buffer[22];
+	u16_to_String(g_buff_send_time, g_gps_data.u8Second);
+	MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send_time), (uint8_t*)g_buff_send_time);
+	memset(g_buff_send_time, '\0', 2);
+
+	/* Delay 500ms */
 	HAL_Delay(500);
 }
 
 static void Wakeup_CallBack(void)
 {
-	  SystemClock_Config();
+	/* Reconfig the system clock after waking up from stop mode */
+	SystemClock_Config();
 
-	  printf("Wake up from sleep mode\r\n");
+	printf("Wake up from sleep mode\r\n");
 
-	  /* GPS enable */
-	  gps_power_EnOrDi(ENABLE);
+	/* GPS enable */
+	gps_power_EnOrDi(ENABLE);
 
-	  /* LTE RX pin enable */
-	  softUART_ReInit();
+	/* LTE RX pin enable */
+	softUART_ReInit();
 
-	  /* LTE enable */
-	  Enable_LTE();
+	/* LTE enable */
+	Enable_LTE();
 
-	  HAL_Delay(15000);
+	/* Wait until the LTE finishs initialization */
+	HAL_Delay(15000);
 
-	  MQTT_Recv_Mode(0, 0, 1);
-	  MQTT_Session(0, 0);
-
-
-
-	  /*Connect with SSL*/
-	  MQTT_SSL_Mode(0, 1, 0);
-	  MQTT_SSL_Certificate(0);
-	  MQTT_SSL_Level(0, 0);
-	  MQTT_SSL_Version(0, 4);
-	  MQTT_SSL_Ciphersuite(0, (uint8_t*)"0xFFFF");
-	  MQTT_SSL_Ignore(0, 1);
+	/* Config the MQTT */
+	MQTT_Recv_Mode(0, 0, 1);
+	MQTT_Session(0, 0);
 
 
-//	  /* Check whether the mqtt server is connected or not. If not, reconnected! */
-//	  if(MQTT_Check_Connect() != RESPONSE_OK)
-//	  {
-//			MQTT_Open_Connect();
-//			HAL_Delay(500);
-//	  }
 
-	  /* Print log */
-	  printf("!!!!MOTION DETECTED !!!!!\n\r");
+	/*Connect with SSL*/
+	MQTT_SSL_Mode(0, 1, 0);
+	MQTT_SSL_Certificate(0);
+	MQTT_SSL_Level(0, 0);
+	MQTT_SSL_Version(0, 4);
+	MQTT_SSL_Ciphersuite(0, (uint8_t*)"0xFFFF");
+	MQTT_SSL_Ignore(0, 1);
 
-	  /* Re Init SOFTUART */
-	  HAL_ResumeTick();
+	#if TEST_CONNECT == 1
+		/* Check whether the mqtt server is connected or not. If not, reconnected! */
+		if(MQTT_Check_Connect() != RESPONSE_OK)
+		{
+			MQTT_Open_Connect();
+			HAL_Delay(500);
+		}
+	#endif
 
-	  /* Quectel initialization */
-	  Quectel_Init();
+	/* Print log */
+	printf("!!!!MOTION DETECTED !!!!!\n\r");
 
-	  /* Re Init GPS UART */
-	  HAL_UART_Receive_IT(&huart2, (uint8_t*)rxBuffer, sizeof(rxBuffer));
+	/* Re Init SOFTUART */
+	HAL_ResumeTick();
 
-	  /* Change 2 flags */
-	  bIsMotion = false;
-	  bIsSetGPS = true;
-	  bIsStop = false;
+	/* Quectel initialization */
+	Quectel_Init();
+
+	/* Re Init GPS UART */
+	HAL_UART_Receive_IT(&huart2, (uint8_t*)g_rxBuffer, sizeof(g_rxBuffer));
+
+	/* Change 2 flags */
+	g_bIsMotion = false;
+	g_bIsSetGPS = true;
+	g_bIsStop = false;
+}
+
+static void Stop_Callback(void)
+{
+	printf("MOTION NOT DETECTED YET !!\r\n");
+
+	/* Close a Network for MQTT Client */
+	MQTT_Close(0);
+
+	/* Disable GPS Module */
+	gps_power_EnOrDi(DISABLE);
+
+	/* DeInit the RX pin of UART */
+	softUART_DeInit();
+
+	/* Power off Module LTE */
+	LTE_PWRCRL_OFF();
+
+	/* LTE POWER SUPPY DISABLE */
+	LTE_Disable();
+
+	/* Enter sleep mode */
+	printf("Enter Stop Mode:\r\n");
+
+	g_bIsStop = true;
+
+	HAL_SuspendTick();
+
+	HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
 }
 
 static void LTE_Init(void)
 {
-	memset(&test_L76, 0, sizeof(test_L76));
+	memset(&g_test_L76, 0, sizeof(g_test_L76));
 
 	Enable_LTE();
 	HAL_Delay(15000);

@@ -15,6 +15,8 @@ static void L76_Lat_Parse(char* sLat, L76* pL76, uint8_t u8NorS);
 static void L76_Long_Parse(char* sLat, L76* pL76, uint8_t u8EorW);
 static void L76_Time_Parse(char* sUtcTime, L76* pL76);
 static void L76_Date_Parse(char* sRmcDate, L76* pL76Handle);
+extern void Error_Handler(void);
+
 
 uint8_t Quectel_Init(void)
 {
@@ -35,8 +37,16 @@ uint8_t Quectel_Init(void)
 	}
 }
 
-void gps_read(char*	sRxBuffer, L76* pL76, char *seGNGGA, char* seGNRMC)
+void gps_read(char*	sRxBuffer,
+			  L76* pL76,
+			  char *seGNGGA,
+			  char* seGNRMC)
 {
+	/* Check for NULL */
+	if ((sRxBuffer == NULL) || (pL76 == NULL) || (seGNGGA == NULL) || (seGNRMC == NULL))
+	{
+		Error_Handler();
+	}
 
 	uint8_t u8IsFix = 0;
 	uint8_t u8IndexOfComma[20] = {0};
@@ -55,7 +65,7 @@ void gps_read(char*	sRxBuffer, L76* pL76, char *seGNGGA, char* seGNRMC)
 	{
 		if (sSubGPS2[i] == '\r')
 		{
-			for(int j = 0; j < i; j++)
+			for (int j = 0; j < i; j++)
 			{
 				seGNRMC[j] = sSubGPS2[j];
 			}
@@ -72,7 +82,7 @@ void gps_read(char*	sRxBuffer, L76* pL76, char *seGNGGA, char* seGNRMC)
 	{
 		if (sSubGPS[i] == '\r')
 		{
-			for(int j = 0; j < i; j++)
+			for (int j = 0; j < i; j++)
 			{
 				seGNGGA[j] = sSubGPS[j];
 			}
@@ -186,7 +196,7 @@ void gps_read(char*	sRxBuffer, L76* pL76, char *seGNGGA, char* seGNRMC)
 		{
 			/* The latitude is positive */
 			u8N_S = GPS_NORTH;
-		}else if(sN_S[0] == 'S')
+		}else if (sN_S[0] == 'S')
 		{
 			/* The longtitude is negative */
 			u8N_S = GPS_SOUTH;
@@ -229,15 +239,24 @@ void gps_read(char*	sRxBuffer, L76* pL76, char *seGNGGA, char* seGNRMC)
 		{
 			u8E_W = GPS_WEST;
 		}
+
 		L76_Long_Parse(sLong, pL76, u8E_W);
 
 	}
 }
 
-static void L76_Lat_Parse(char* sLat, L76* pL76, uint8_t u8NorS)
+static void L76_Lat_Parse(char* sLat,
+						  L76* pL76,
+						  uint8_t u8NorS)
 {
 	char degree[3];
 	char minute[10];
+
+	/* Check for NULL pointer */
+	if ((sLat == NULL) || (pL76 == NULL))
+	{
+		Error_Handler();
+	}
 
 	/* Check the postition of the dot to divide the degrees and minutes
 	 * The Latitude NMEA form ddmm.mmmm
@@ -282,17 +301,25 @@ static void L76_Lat_Parse(char* sLat, L76* pL76, uint8_t u8NorS)
 	}
 	else
 	{
-		//Unavailable
+		/* Unavailable */
 		;
 	}
 	printf("NMEA latitude: %lf\r\n", pL76->dLattitude);
 
 }
 
-static void L76_Long_Parse(char* sLong, L76* pL76, uint8_t u8EorW)
+static void L76_Long_Parse(char* sLong,
+						   L76* pL76,
+						   uint8_t u8EorW)
 {
 	char degree[4];
 	char minute[10];
+
+	/* Check for NULL pointer */
+	if ((sLong == NULL) || (pL76 == NULL))
+	{
+		Error_Handler();
+	}
 
 	/* Check the position of the dot to divide degrees and minutes
 	 * The Longtitude NMEA form dddmm.mmmm
@@ -336,7 +363,7 @@ static void L76_Long_Parse(char* sLong, L76* pL76, uint8_t u8EorW)
 	}
 	else
 	{
-		//Unavailable
+		/* Unavailable */
 		;
 	}
 
@@ -345,8 +372,15 @@ static void L76_Long_Parse(char* sLong, L76* pL76, uint8_t u8EorW)
 
 }
 
-static void L76_Time_Parse(char* sUtcTime, L76* pL76)
+static void L76_Time_Parse(char* sUtcTime,
+						   L76* pL76)
 {
+	/* Check for NULL pointer */
+	if ((sUtcTime == NULL) || (pL76 == NULL))
+	{
+		Error_Handler();
+	}
+
 	uint32_t dTime = (uint32_t)atof(sUtcTime);
 
 	/* 1. Get the seconds */
@@ -362,8 +396,15 @@ static void L76_Time_Parse(char* sUtcTime, L76* pL76)
 	printf("UTC TIME: %d:%d:%d\r\n", pL76->u8Hour, pL76->u8Minute, pL76->u8Second);
 }
 
-static void L76_Date_Parse(char* sRmcDate, L76* pL76Handle)
+static void L76_Date_Parse(char* sRmcDate,
+						   L76* pL76Handle)
 {
+	/* Check for NULL pointers */
+	if ((sRmcDate == NULL) || (pL76Handle == NULL))
+	{
+		Error_Handler();
+	}
+
 	uint32_t dDate = (uint32_t)atof(sRmcDate);
 
 	/* 1. Get the day */
@@ -382,12 +423,15 @@ static void L76_Date_Parse(char* sRmcDate, L76* pL76Handle)
 
 void gps_power_EnOrDi(uint8_t u8EnOrDi)
 {
+
 	if (u8EnOrDi == ENABLE)
 	{
+		/* Enable the power of the GPS module */
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 	}
 	else
 	{
+		/* Disable the power of the GPS module */
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
 	}
 }

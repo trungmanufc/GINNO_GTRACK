@@ -118,10 +118,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* TRUNG 's global variables */
-extern uint8_t u8StatusInt1;
-extern bool bIsMotion;
-extern uint32_t u32CurrentTime;
-extern bool bIsSetGPS;
+extern uint8_t g_u8StatusInt1;
+extern bool g_bIsMotion;
+extern uint32_t g_u32CurrentTime;
+extern bool g_bIsSetGPS;
 
 
 extern UART_HandleTypeDef huart1;
@@ -515,10 +515,10 @@ void UART_EMUL_EXTI_RX(uint16_t GPIO_Pin)
 	   //Prevent unused argument(s) compilation warning
 		if (GPIO_Pin == GPIO_PIN_0)
 		{
-			u8StatusInt1++;
-			u32CurrentTime = HAL_GetTick();
-			bIsMotion = true;
-			bIsSetGPS = true;
+			g_u8StatusInt1++;
+			g_u32CurrentTime = HAL_GetTick();
+			g_bIsMotion = true;
+			g_bIsSetGPS = true;
 		}
 
 		else if (GPIO_Pin == UART_EMUL_RX_PIN)

@@ -716,7 +716,26 @@ void ftoa(double number, char* res, uint8_t afterPoint)
     }
 }
 
-/*EOF*/
+/*Functions relate convert uint16_t to string*/
+void u16_to_String(char* res, uint16_t inputValue)
+{
+    uint8_t i = 0, count = 0;
+    uint16_t temp = inputValue;
+    if(temp == 0) *res = 0x30;
+    while(temp != 0)
+    {
+        temp = temp /10;
+        count++;
+    }
+    i = count - 1;
+    while(inputValue != 0)
+    {
+        temp = inputValue % 10;
+        *(res + i) = temp + 0x30;
+        i--;
+        inputValue /= 10;
+    }
+}
 
 /*EOF*/
 
