@@ -719,6 +719,7 @@ void u16_to_String(char* res, uint16_t inputValue)
 {
     uint8_t i = 0, count = 0;
     uint16_t temp = inputValue;
+	  if(temp == 0) *res = 0x30;
     while(temp != 0)
     {
         temp = temp /10;

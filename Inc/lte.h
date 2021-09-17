@@ -201,6 +201,13 @@ response_t MQTT_Session(uint8_t clientIndex,
   */
 response_t MQTT_Open(uint8_t clientIndex,
 										 uint8_t* hostName, uint16_t port);
+										 
+/**
+  * @brief  Close a Network for MQTT Client
+	* @param  clientIndex: MQTT client identifier (0-5)
+  * @retval OK or ERR
+  */
+response_t MQTT_Close(uint8_t clientIndex);
 
 /**
   * @brief  Connect a Client to MQTT Server
