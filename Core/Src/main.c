@@ -40,7 +40,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TEST_MQTT		1
+#define TEST_MQTT		0
 #define TEST_MQTT_SSL	1
 #define TEST_FLASH 		0
 #define MAX_SIZE_BUFF	256
@@ -116,7 +116,7 @@ UART_Emul_HandleTypeDef UartEmulHandle;
 
 response_t 		g_flag = RESPONSE_ERR;
 
-//global variables for LTE module
+/* Global variables for LTE module */
 uint8_t    		g_recv_byte = 0, g_count = 0, g_count_temp = 0;
 uint8_t 		g_isDone = RX_FALSE, g_check_end = 1;
 uint8_t 		g_recv_buff[MAX_SIZE_BUFF] = {0};
@@ -139,6 +139,8 @@ static void Flash_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/* USE PRINTF TO PRINT UART LOG BY RECONFIG PUTCHAR FUNCTION */
 #ifdef __GNUC__
 	#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 #else
@@ -152,16 +154,16 @@ PUTCHAR_PROTOTYPE
 	return ch;
 }
 
+/* Sample NMEA string to test GPS parse function */
 char* g_testBuffer2 = "$GNRMC,152657.000,A,2057.82025,N,10549.33270,E,0.00,0.00,060821,,,A,V*04\r\n$GNGGA,152658.000,2057.82021,N,10549.33274,E,1,12,1.0,46.7,M,-27.8,M,,*59\r\n";
 
 /* The Rx Buffer from the Quectel L76 LB */
 char g_rxBuffer[1000];
 
+/* Sample NMEA string to test GPS parse function */
 char *g_testBuffer = "$GNRMC,573843,A,3349.896,N,11808.521,W,000.0,360.0,230108,013.4,E*69\r\n$GNGGA,185833.80,4808.7402397,S,01133.9325039,W,1,15,1.1,470.50,M,45.65,M,,*75\r\n";
 
 L76 g_test_L76;
-char* testComma = "GNGGA,185833.80,4808.7402397,N,01133.9325039,E,0,15,1.1,470.50,M,45.65,M,,*75";
-uint8_t testIndexofComma[20];
 
 /* MQTT Open Contact */
 response_t MQTT_Open_Connect(void)
@@ -178,12 +180,12 @@ response_t MQTT_Open_Connect(void)
 	}
 	g_mqtt_isOn = ON;
 
-	/*wait to connect to broker*/
+	/* Wait to connect to broker*/
 	g_flag = RESPONSE_ERR;
 	g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
 	while(g_flag != RESPONSE_OK)
 	{
-			//Reopen network and reconnect
+			/* Reopen network and reconnect */
 			#if TEST_MQTT_SSL == 1
 			MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
 			#else
@@ -731,8 +733,6 @@ static void FlashMQTT_WriteRead(void)
 
 	W25Q16_WritePage(g_write_buffer, 0, 0x00, 23);
 
-
-
 	HAL_Delay(500);
 
 	printf("\n\rRead some bytes \r\n");
@@ -819,6 +819,8 @@ static void Wakeup_CallBack(void)
 
 	printf("Wake up from sleep mode\r\n");
 
+	HAL_ResumeTick();
+
 	/* GPS enable */
 	gps_power_EnOrDi(ENABLE);
 
@@ -857,8 +859,7 @@ static void Wakeup_CallBack(void)
 	/* Print log */
 	printf("!!!!MOTION DETECTED !!!!!\n\r");
 
-	/* Re Init SOFTUART */
-	HAL_ResumeTick();
+
 
 	/* Quectel initialization */
 	Quectel_Init();
@@ -879,17 +880,17 @@ static void Stop_Callback(void)
 	/* Close a Network for MQTT Client */
 	MQTT_Close(0);
 
-	/* Disable GPS Module */
-	gps_power_EnOrDi(DISABLE);
-
-	/* DeInit the RX pin of UART */
-	softUART_DeInit();
-
 	/* Power off Module LTE */
 	LTE_PWRCRL_OFF();
 
 	/* LTE POWER SUPPY DISABLE */
 	LTE_Disable();
+
+	/* Disable GPS Module */
+	gps_power_EnOrDi(DISABLE);
+
+	/* DeInit the RX pin of UART */
+	softUART_DeInit();
 
 	/* Enter sleep mode */
 	printf("Enter Stop Mode:\r\n");
@@ -905,8 +906,10 @@ static void LTE_Init(void)
 {
 	memset(&g_test_L76, 0, sizeof(g_test_L76));
 
+	softUART_DeInit();
 	Enable_LTE();
-	HAL_Delay(15000);
+
+	//HAL_Delay(15000);
 	printf("LTE Enabled!!\r\n");
 
 	HAL_Delay(1000);
@@ -921,23 +924,23 @@ static void LTE_Init(void)
 		  Log_Info((uint8_t*)"RES_ERR\n", 8);
 	}
 
-	/*Check Baudrate of EC200*/
-	Check_Baud_LTE();
+	/* Check Baudrate of EC200*/
+	//Check_Baud_LTE();
 
-	/*Check sim detect of EC200 and enable*/
-	Enable_SIM();
+	/* Check sim detect of EC200 and enable*/
+	//Enable_SIM();
 
-	/*Check CPIN of module LTE*/
-	Check_CPIN_LTE();
+	/* Check CPIN of module LTE*/
+	//Check_CPIN_LTE();
 
-	/*Select Text mode for SMS*/
-	Select_Text_Mode();
+	/* Select Text mode for SMS*/
+	//Select_Text_Mode();
 
-	/*Select ME Memory store sms*/
-	Select_ME_Memory();
+	/* Select ME Memory store sms*/
+	//Select_ME_Memory();
 
-	/*Delete ME Memory store sms*/
-	Delete_Memory_SMS();
+	/* Delete ME Memory store sms*/
+	//Delete_Memory_SMS();
 }
 
 static void Flash_Init(void)

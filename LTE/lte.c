@@ -31,10 +31,10 @@ void PWRCRL_ON_LTE(void)
 void LTE_PWRCRL_OFF(void)
 {
 	/* keep Power Key at high level */
-	HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(PWRKEY_CTRL_PORT, PWRKEY_CTRL_PIN, GPIO_PIN_SET);
 	HAL_Delay(1000);
 	Trans_Data(&UartEmulHandle, (uint8_t*)"0AT+QPOWD\r", 10);
-	if(Recv_Response(&UartEmulHandle, 300) == RESPONSE_OK) Log_Info((uint8_t*)"RES_OK\n", 7);
+	if(Recv_Response(&UartEmulHandle, 2000) == RESPONSE_OK) Log_Info((uint8_t*)"RES_OK\n", 7);
 	else Log_Info((uint8_t*)"RES_ERR\n", 8);
 }
 void Enable_LTE(void)
@@ -378,6 +378,10 @@ response_t MQTT_Publish(uint8_t clientIndex,
 				Log_Info((uint8_t*)"Publish Success!\n", 17);
 				HAL_Delay(MAX_WAIT_TIME);
 				return RESPONSE_OK;
+		}
+		else
+		{
+			Log_Info((uint8_t*)"Publish not Success!\n", 21);
 		}
 		HAL_Delay(MAX_WAIT_TIME);
 		return RESPONSE_ERR;
