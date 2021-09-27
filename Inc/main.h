@@ -68,7 +68,7 @@ void Error_Handler(void);
 #define RESET_CTRL_Pin GPIO_PIN_4
 #define RESET_CTRL_GPIO_Port GPIOB
 #define PWRKEY_CTRL_Pin GPIO_PIN_5
-#define PWRKEY_CTRL_GPIO_Porqerqt GPIOB
+#define PWRKEY_CTRL_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

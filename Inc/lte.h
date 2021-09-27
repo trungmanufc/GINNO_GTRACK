@@ -87,12 +87,13 @@ typedef struct
 		/*!<Date Fields*/
 		uint8_t u8Day;			
 		uint8_t u8Month;
+		uint8_t u8Year;
 		
-		union
-    {
-        uint16_t u16YearRaw;
-        uint8_t yearBytes[2];
-    } year_t;
+//		union
+//    {
+//        uint16_t u16YearRaw;
+//        uint8_t yearBytes[2];
+//    } year_t;
 		
 		/*!<Time Fields*/
 		uint8_t u8Hour;
