@@ -121,14 +121,14 @@ static void MX_SPI2_Init(void);
 uint32_t Get_Hex_Line(uint8_t* targetBuff, uint32_t addrStart)
 {
 		uint32_t newStart = addrStart;
-		g_data_read = 'x';
-		while(g_data_read != '\n')	//end line
+		g_data_read = '\0';	//reset 'g_data_read'
+		while(g_data_read != '\n')	//until end line
 		{
 				W25Q16_ReadByte(&g_data_read, newStart);
 				targetBuff[newStart - addrStart] = g_data_read;	//copy data to target buffer
-				newStart++;
+				newStart++; //increase new start index
 		}
-		return newStart;		
+		return newStart;
 }
 
 /**
@@ -144,7 +144,8 @@ uint8_t Ascii_to_Dec(uint8_t character)
 }
 
 /**
-  * @brief  Write a Word into internal flash
+  * @brief  Write a buffer to internal flash
+	* @param  none
   * @retval none
   */
 void Write_Flash(void)
@@ -153,7 +154,7 @@ void Write_Flash(void)
 		HAL_FLASH_Unlock();
 		__HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
 							FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR);
-	//erase sector of app
+		//erase sector of app
 		FLASH_Erase_Sector(APP_SECTOR, FLASH_VOLTAGE_RANGE_3);
 	
 		for(uint32_t i = 0; i < g_count_data_boot; i++)
@@ -191,6 +192,7 @@ uint8_t Process_Hex_Line(uint8_t* line_hex_buff)
 		aLineHex.recordType = Ascii_to_Dec(line_hex_buff[7]) * 16 + Ascii_to_Dec(line_hex_buff[8]);
 		numberOfData = 2 * aLineHex.byteCount;
 		aLineHex.checkSum = Ascii_to_Dec(line_hex_buff[9+numberOfData]) * 16 + Ascii_to_Dec(line_hex_buff[10+numberOfData]);
+		//get datas of a line
 		if((numberOfData > 0) && (aLineHex.recordType == 0x00))
 		{
 				uint8_t temp_data[32] = {0};	
@@ -238,6 +240,11 @@ uint8_t Process_Hex_Line(uint8_t* line_hex_buff)
 		return 0; //not flash data
 }
 
+/**
+  * @brief  Boot function, jump to new firmware 
+	* @param  none
+  * @retval none
+  */
 void Boot(void)
 {
   HAL_RCC_DeInit();
@@ -370,7 +377,7 @@ int main(void)
 			HTTP_Get_Range((uint8_t*)"20", buff_index, (uint8_t*)"4096");
 			g_len_read_http = HTTP_Read(80, 4096);
 			Log_Info((uint8_t*)"Downloaded!\r\n", 13);
-			//write to external flash
+			//write to pages of external flash 
 			if(g_len_read_http == 4096)
 			{
 					for(uint8_t i = 0; i < number_of_write; i++)
