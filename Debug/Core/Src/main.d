@@ -30,15 +30,18 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/lte.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/soft_uart.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/stm32f4xx_hal_uart_emul.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/lte.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/soft_uart.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/stm32f4xx_hal_uart_emul.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/soft_uart.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/stm32f4xx_hal_uart_emul.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/SC7A20/SC7A20.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/QuectelL76_GPS/L76.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/Flash/w25q16.h
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/soft_uart.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/stm32f4xx_hal_uart_emul.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/SC7A20/SC7A20.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/QuectelL76_GPS/L76.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/Flash/w25q16.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Middlewares/Middleware.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Middlewares/gv.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Application/MainProcess.h
 
 ../Core/Inc/main.h:
 
@@ -104,20 +107,26 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/lte.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/lte.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/soft_uart.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/soft_uart.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/stm32f4xx_hal_uart_emul.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/stm32f4xx_hal_uart_emul.h:
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/soft_uart.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/soft_uart.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/stm32f4xx_hal_uart_emul.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/stm32f4xx_hal_uart_emul.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/SC7A20/SC7A20.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/SC7A20/SC7A20.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/QuectelL76_GPS/L76.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/QuectelL76_GPS/L76.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/Flash/w25q16.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/Flash/w25q16.h:
+
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Middlewares/Middleware.h:
+
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Middlewares/gv.h:
+
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Application/MainProcess.h:

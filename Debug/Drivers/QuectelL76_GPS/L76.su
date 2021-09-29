@@ -1,0 +1,7 @@
+L76.c:21:9:Quectel_Init	216	static
+L76.c:40:6:gps_read	208	static
+L76.c:248:13:L76_Lat_Parse	80	static
+L76.c:311:13:L76_Long_Parse	80	static
+L76.c:375:13:L76_Time_Parse	32	static
+L76.c:399:13:L76_Date_Parse	32	static
+L76.c:424:6:gps_power_EnOrDi	16	static

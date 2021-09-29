@@ -30,12 +30,12 @@ Core/Src/stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/lte.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/soft_uart.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/stm32f4xx_hal_uart_emul.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/lte.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/soft_uart.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/stm32f4xx_hal_uart_emul.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/soft_uart.h \
- D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/stm32f4xx_hal_uart_emul.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/soft_uart.h \
+ C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/stm32f4xx_hal_uart_emul.h \
  ../Core/Inc/stm32f4xx_it.h
 
 ../Core/Inc/main.h:
@@ -102,16 +102,16 @@ Core/Src/stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c ../Core/Inc/main.h \
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/lte.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/lte.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/soft_uart.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/soft_uart.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/stm32f4xx_hal_uart_emul.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/stm32f4xx_hal_uart_emul.h:
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/soft_uart.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/soft_uart.h:
 
-D:/20202/NHUNG/Ginno\ Internship/G_TRACK_I2C_UART/LTE/stm32f4xx_hal_uart_emul.h:
+C:/Users/Admin/Desktop/GINNO_GTRACK-Tuan_Trung/Drivers/LTE/stm32f4xx_hal_uart_emul.h:
 
 ../Core/Inc/stm32f4xx_it.h:

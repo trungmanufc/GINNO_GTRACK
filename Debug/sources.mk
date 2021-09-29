@@ -1,6 +1,5 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (9-2020-q2-update)
 ################################################################################
 
 ELF_SRCS := 
@@ -20,11 +19,13 @@ OBJCOPY_BIN :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Application \
 Core/Src \
 Core/Startup \
+Drivers/Flash \
+Drivers/LTE \
+Drivers/QuectelL76_GPS \
+Drivers/SC7A20 \
 Drivers/STM32F4xx_HAL_Driver/Src \
-Flash \
-LTE \
-QuectelL76_GPS \
-SC7A20 \
+Middlewares \
 
