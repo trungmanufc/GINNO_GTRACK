@@ -114,12 +114,7 @@ int main(void)
 	SystemClock_Config();
 
   	/* USER CODE BEGIN SysInit */
-    g_test_L76.u8Day = 10;
-    g_test_L76.u8Hour = 0;
-    g_test_L76.u8Minute = 0;
-    g_test_L76.u8Month = 0;
-    g_test_L76.u8Second = 0;
-    g_test_L76.u8Year = 0;
+
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
