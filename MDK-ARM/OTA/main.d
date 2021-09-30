@@ -1,4 +1,4 @@
-.\ota\main.o: ../Src/main.c
+.\ota\main.o: ..\Src\main.c
 .\ota\main.o: ../Inc/main.h
 .\ota\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 .\ota\main.o: ../Inc/stm32f4xx_hal_conf.h
@@ -39,4 +39,6 @@
 .\ota\main.o: ../Inc/w25q16.h
 .\ota\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\ota\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+.\ota\main.o: ..\MiddleWare\MiddleWare.h
+.\ota\main.o: ..\MainProcess\MainProcess.h
 .\ota\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

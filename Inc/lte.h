@@ -354,7 +354,7 @@ response_t HTTP_Active_PDP(uint8_t contextID);
 response_t HTTP_Set_URL(uint8_t lenOfURL, uint8_t timeOut, uint8_t* URL);
 
 /**
-  * @brief  sen get request to http server
+  * @brief  send get request to http server
 	* @param  timeOut: time out for module to get response, 2 digits
   * @retval <len data> or ERR
   */
@@ -380,7 +380,7 @@ uint16_t Search_First_Str(uint8_t* strBig,
 													uint8_t* strSmall);
 
 /**
-  * @brief  sen get request to http server
+  * @brief  start read data from http server
 	* @param  timeOut: time out for module to get response, 2 digits
 	* @param  lenData: len of data want to read
   * @retval len of data or ERR

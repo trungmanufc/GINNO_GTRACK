@@ -533,9 +533,9 @@ void W25Q16_ReadByte(uint8_t* pBuffer,
 		HAL_SPI_Receive(&W25Q16_SPI, pBuffer, 1, 100);
 		W25Q16_CS_DIS;
 		W25Q16_Wait_EndBusy();
-		
-		sprintf(buffet_to_log, "Read a byte %02x\n", *pBuffer);
-		Log_Info((uint8_t*)buffet_to_log, 15);
+	
+//		sprintf(buffet_to_log, "Read a byte %02x\n", *pBuffer);
+//		Log_Info((uint8_t*)buffet_to_log, 15);
 		
 		myDevice.isBusy  =  IDLE;
 }

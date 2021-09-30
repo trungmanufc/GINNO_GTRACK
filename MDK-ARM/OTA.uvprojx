@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F401xC</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;            ../Drivers/STM32F4xx_HAL_Driver/Inc;            ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;            ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;            ../Drivers/CMSIS/Include;            ..\Inc</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\Inc;..\MiddleWare;..\Inc;..\MainProcess</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -393,14 +393,14 @@
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
-              <FileName>stm32f4xx_hal_uart_emul.c</FileName>
+              <FileName>lte.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\stm32f4xx_hal_uart_emul.c</FilePath>
+              <FilePath>..\Src\lte.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f4xx_hal_uart_emul.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\stm32f4xx_hal_uart_emul.h</FilePath>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\main.c</FilePath>
             </File>
             <File>
               <FileName>soft_uart.c</FileName>
@@ -408,44 +408,24 @@
               <FilePath>..\Src\soft_uart.c</FilePath>
             </File>
             <File>
-              <FileName>soft_uart.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\soft_uart.h</FilePath>
-            </File>
-            <File>
-              <FileName>lte.c</FileName>
+              <FileName>stm32f4xx_hal_msp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\lte.c</FilePath>
+              <FilePath>..\Src\stm32f4xx_hal_msp.c</FilePath>
             </File>
             <File>
-              <FileName>lte.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\lte.h</FilePath>
+              <FileName>stm32f4xx_hal_uart_emul.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\stm32f4xx_hal_uart_emul.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\stm32f4xx_it.c</FilePath>
             </File>
             <File>
               <FileName>w25q16.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\w25q16.c</FilePath>
-            </File>
-            <File>
-              <FileName>w25q16.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\w25q16.h</FilePath>
-            </File>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/stm32f4xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_hal_msp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/stm32f4xx_hal_msp.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -597,6 +577,36 @@
               <FileName>system_stm32f4xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/system_stm32f4xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>MiddleWare</GroupName>
+          <Files>
+            <File>
+              <FileName>MiddleWare.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MiddleWare\MiddleWare.c</FilePath>
+            </File>
+            <File>
+              <FileName>MiddleWare.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MiddleWare\MiddleWare.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>MainProcess</GroupName>
+          <Files>
+            <File>
+              <FileName>MainProcess.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MainProcess\MainProcess.c</FilePath>
+            </File>
+            <File>
+              <FileName>MainProcess.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MainProcess\MainProcess.h</FilePath>
             </File>
           </Files>
         </Group>

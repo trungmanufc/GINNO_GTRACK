@@ -36,6 +36,9 @@ extern "C" {
 #include "stm32f4xx_hal_uart_emul.h"
 #include "lte.h"
 #include "w25q16.h"
+#include "MiddleWare.h"
+#include "MainProcess.h"
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

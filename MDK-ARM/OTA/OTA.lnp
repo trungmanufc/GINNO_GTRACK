@@ -1,12 +1,12 @@
 --cpu=Cortex-M4.fp
 ".\ota\startup_stm32f401xc.o"
-".\ota\stm32f4xx_hal_uart_emul.o"
-".\ota\soft_uart.o"
 ".\ota\lte.o"
-".\ota\w25q16.o"
 ".\ota\main.o"
-".\ota\stm32f4xx_it.o"
+".\ota\soft_uart.o"
 ".\ota\stm32f4xx_hal_msp.o"
+".\ota\stm32f4xx_hal_uart_emul.o"
+".\ota\stm32f4xx_it.o"
+".\ota\w25q16.o"
 ".\ota\stm32f4xx_hal_spi.o"
 ".\ota\stm32f4xx_hal_rcc.o"
 ".\ota\stm32f4xx_hal_rcc_ex.o"
@@ -24,7 +24,9 @@
 ".\ota\stm32f4xx_hal_tim.o"
 ".\ota\stm32f4xx_hal_tim_ex.o"
 ".\ota\stm32f4xx_hal_uart.o"
-".\ota\system_stm32f4xx.o"
+".\ota\system_stm32f4xx_1.o"
+".\ota\middleware.o"
+".\ota\mainprocess.o"
 --library_type=microlib --strict --scatter ".\OTA\OTA.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -716,9 +716,9 @@ response_t HTTP_Set_URL(uint8_t lenOfURL, uint8_t timeOut, uint8_t* URL)
 		sprintf((char*)g_buff_temp, "0AT+QHTTPURL=%d,%d\r", lenOfURL, timeOut);
 		if(lenOfURL >= 100) Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 20);
 		else if(lenOfURL <= 99 && lenOfURL >= 10)Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 19);		
-		Recv_Response(&UartEmulHandle, 200);
+		Recv_Response(&UartEmulHandle, 500);
 		Trans_Data(&UartEmulHandle, URL, lenOfURL);
-		if(Recv_Response(&UartEmulHandle, 500) == RESPONSE_OK)
+		if(Recv_Response(&UartEmulHandle, 1000) == RESPONSE_OK)
 		{
 				return RESPONSE_OK;
 		}
@@ -726,7 +726,7 @@ response_t HTTP_Set_URL(uint8_t lenOfURL, uint8_t timeOut, uint8_t* URL)
 }
 
 /**
-  * @brief  sen get request to http server
+  * @brief  send get request to http server
 	* @param  timeOut: time out for module to get response, 2 digits
   * @retval <len data> or ERR
   */
@@ -857,7 +857,7 @@ uint16_t Search_First_Str(uint8_t* strBig,
 }
 
 /**
-  * @brief  sen get request to http server
+  * @brief  start read data from http server
 	* @param  timeOut: time out for module to get response, 2 digits
 	* @param  lenData: len of data want to read
   * @retval len of data or ERR

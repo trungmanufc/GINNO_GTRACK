@@ -1,4 +1,4 @@
-.\ota\stm32f4xx_hal_msp.o: ../Src/stm32f4xx_hal_msp.c
+.\ota\stm32f4xx_hal_msp.o: ..\Src\stm32f4xx_hal_msp.c
 .\ota\stm32f4xx_hal_msp.o: ../Inc/main.h
 .\ota\stm32f4xx_hal_msp.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 .\ota\stm32f4xx_hal_msp.o: ../Inc/stm32f4xx_hal_conf.h
@@ -39,3 +39,5 @@
 .\ota\stm32f4xx_hal_msp.o: ../Inc/w25q16.h
 .\ota\stm32f4xx_hal_msp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\ota\stm32f4xx_hal_msp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+.\ota\stm32f4xx_hal_msp.o: ..\MiddleWare\MiddleWare.h
+.\ota\stm32f4xx_hal_msp.o: ..\MainProcess\MainProcess.h
