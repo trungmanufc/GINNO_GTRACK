@@ -1,6 +1,11 @@
 /*
  * gv.c
  *
+ * THIS FILE CONTAINS GLOBAL VARIBLES OF THE SYSTEM
+ *
+ *
+ *
+ *
  *  Created on: Sep 29, 2021
  *      Author: Admin
  */

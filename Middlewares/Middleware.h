@@ -24,19 +24,6 @@ extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 extern UART_Emul_HandleTypeDef UartEmulHandle;
 
-/* !
- * @brief Open MQTT server
- *
- * This function send AT commands to OPEN the MQTT server and
- * check whether it is opened or not.
- *
- * @param[in] none
- *
- *
- *
- * @retval Respon success or error
- */
-response_t MQTT_Open_Connect(void);
 
 
 

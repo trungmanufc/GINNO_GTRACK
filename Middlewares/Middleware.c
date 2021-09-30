@@ -8,8 +8,224 @@
 
 #include "Middleware.h"
 
+static response_t MQTT_Open_Connect(void);
+static void softUART_DeInit(void); //
+static void softUART_ReInit(void); //
+static void LTE_Disable(void); //
+static void MQTT_Config(void); //
+static void Flash_Init(void);
+static void Convert_U8_To_Str(char* res, uint8_t inputValue);
+static void Write_Read_Pub(void);
+extern void SystemClock_Config(void);
+
+/*************************************************************************************************************
+ * Function name: Wakeup_callback
+ *
+ * Description:
+ * The flow of the function executes after motion is detected, following these steps:
+ *		-Reconfig the system clock
+ *		-Resume tick count
+ *		-Turn on the GPS module
+ *		-Reinit soft UART
+ *		-Turn on the LTE module
+ *		-Config MQTT
+ *		-Connect to MQTT server
+ *		-Reconfig GPS module
+ *
+ *
+ * Parameter:
+ * 		none
+ *
+ *
+ * Return value:
+ * 		none
+ *
+ *************************************************************************************************************/
+void Wakeup_CallBack(void)
+{
+	/* Reconfig the system clock after waking up from stop mode */
+	SystemClock_Config();
+
+	printf("Wake up from stop mode\r\n");
+
+	/* Resume Tick Count */
+	HAL_ResumeTick();
+
+	/* GPS enable */
+	gps_power_EnOrDi(ENABLE);
+
+	/* LTE RX pin enable */
+	softUART_ReInit();
+
+	/* LTE enable */
+	Enable_LTE();
+
+	/* Wait until the LTE finishs initialization */
+	HAL_Delay(15000);
+
+	/* Config the MQTT */
+	MQTT_Config();
+
+	#if TEST_CONNECT == 1
+		/* Check whether the mqtt server is connected or not. If not, reconnected! */
+		if(MQTT_Check_Connect() != RESPONSE_OK)
+		{
+			MQTT_Open_Connect();
+			HAL_Delay(500);
+		}
+	#endif
+
+	/* Print log */
+	printf("!!!!MOTION DETECTED !!!!!\n\r");
+
+	/* Quectel initialization */
+	Quectel_Init();
+
+	/* Change 2 flags */
+	g_bIsMotion = false;
+	g_bIsSetGPS = true;
+	g_bIsStop = false;
+}
+
+
+/*************************************************************************************************************
+ * Function name: Stop_Callback
+ *
+ * Description:
+ * The flow of the function executes after inmotion event is detected, following these steps:
+ *		-Close MQTT server
+ *		-Turn off LTE module
+ *		-Turn off GPS module
+ *		-Disable soft UART
+ *		-Stop tick count
+ *		-Enter stop mode
+ *
+ *
+ * Parameter:
+ * 		none
+ *
+ *
+ * Return value:
+ * 		none
+ *
+ *************************************************************************************************************/
+void Stop_Callback(void)
+{
+	printf("MOTION NOT DETECTED YET !!\r\n");
+
+	/* Close a Network for MQTT Client */
+	MQTT_Close(0);
+
+	/* Power off Module LTE */
+	LTE_PWRCRL_OFF();
+
+	/* LTE POWER SUPPY DISABLE */
+	LTE_Disable();
+
+	/* Disable GPS Module */
+	gps_power_EnOrDi(DISABLE);
+
+	/* DeInit the RX pin of UART */
+	softUART_DeInit();
+
+	/* Enter sleep mode */
+	printf("Enter Stop Mode:\r\n");
+
+	g_bIsStop = true;
+
+	/* Stop tick count */
+	HAL_SuspendTick();
+
+	/* Enter stop mode after 5 minutes without motion */
+	HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
+}
+
+
+/*************************************************************************************************************
+ * Function name: Data_Process
+ *
+ * Description:
+ * The flow of the function executes after wakeup event, following these steps:
+ *		-Make sure that the power of GPS module is always on
+ *		-Receive the NMEA string
+ *		-Parse the NMEA
+ *		-Push the data which was parsed to the Flash memory
+ *		-Read the data back from the memory
+ *		-Push the data to MQTT server
+ *
+ *
+ * Parameter:
+ * 		none
+ *
+ *
+ * Return value:
+ * 		none
+ *
+ *************************************************************************************************************/
+void Data_Process(void)
+{
+	char test_GNGGA[100] = {0};
+	char test_GNRMC[100] = {0};
+
+	/* If the motion is detected, the GPS will get data and then publish the data to MQTT server */
+
+	/* Ensure that the power of GPS module is turned on */
+	gps_power_EnOrDi(ENABLE);
+
+	printf("\r\n****START THE CONVERSION******\r\n\n");
+
+	/* Receive the string */
+	HAL_UART_Receive(&huart2, (uint8_t*)g_rxBuffer, sizeof(g_rxBuffer), HAL_MAX_DELAY);
+
+	/* 2 strings to split the GNGAA from the NMEA sent from the Quectel L76 LB */
+	printf("%s\r\n\n", g_rxBuffer);
+	printf("%d\r\n\n", strlen(g_rxBuffer));
+
+	/* Parse the NMEA string */
+	gps_read(g_testBuffer2, &g_test_L76, test_GNGGA, test_GNRMC);
+
+	/* Write to Flash, Read from Flash and then publish the infos to MQTT serser */
+	Write_Read_Pub();
+}
+
+/*************************************************************************************************************
+ * Function name: System_Initialization
+ *
+ * Description:
+ * The flow of the function executes after the system starts, following these steps:
+ *		-Initialize the flash memory
+ *		-Initialize the acce
+ *		-Initialize LTE module
+ *
+ *
+ * Parameter:
+ * 		none
+ *
+ *
+ * Return value:
+ * 		none
+ *
+ *************************************************************************************************************/
+void System_Initialization(void)
+{
+	/* Flash memory init */
+	Flash_Init();
+
+	/* Acce init */
+	g_u8Test = SC7A20_Init();
+
+	/* Initialize GPS module */
+	Quectel_Init();
+
+	/* Enable the power of LTE module */
+	Enable_LTE();
+
+	/* Delay to let the LTE modules finishs initializing */
+	HAL_Delay(15000);
+}
+
 /* MQTT Open Contact */
-response_t MQTT_Open_Connect(void)
+static response_t MQTT_Open_Connect(void)
 {
 	g_flag = RESPONSE_ERR;
 	/* Wait to open network port 8883 */
@@ -39,15 +255,6 @@ response_t MQTT_Open_Connect(void)
 	g_flag = RESPONSE_ERR;
 	return RESPONSE_OK;
 }
-
-static void softUART_DeInit(void); //
-static void softUART_ReInit(void); //
-static void LTE_Disable(void); //
-static void MQTT_Config(void); //
-static void Flash_Init(void);
-static void Convert_U8_To_Str(char* res, uint8_t inputValue);
-static void Write_Read_Pub(void);
-extern void SystemClock_Config(void);
 
 static void LTE_Disable(void)
 {
@@ -219,128 +426,4 @@ static void Write_Read_Pub(void)
 		MQTT_Publish(0, 0, 0, 1, (uint8_t*)"qn052289@gmail.com/topic1", strlen(g_buff_send), (uint8_t*)g_buff_send);
 }
 
-void Wakeup_CallBack(void)
-{
-	/* Reconfig the system clock after waking up from stop mode */
-	SystemClock_Config();
-
-	printf("Wake up from stop mode\r\n");
-
-	/* Resume Tick Count */
-	HAL_ResumeTick();
-
-	/* GPS enable */
-	gps_power_EnOrDi(ENABLE);
-
-	/* LTE RX pin enable */
-	softUART_ReInit();
-
-	/* LTE enable */
-	Enable_LTE();
-
-	/* Wait until the LTE finishs initialization */
-	HAL_Delay(15000);
-
-	/* Config the MQTT */
-	MQTT_Config();
-
-	#if TEST_CONNECT == 1
-		/* Check whether the mqtt server is connected or not. If not, reconnected! */
-		if(MQTT_Check_Connect() != RESPONSE_OK)
-		{
-			MQTT_Open_Connect();
-			HAL_Delay(500);
-		}
-	#endif
-
-	/* Print log */
-	printf("!!!!MOTION DETECTED !!!!!\n\r");
-
-	/* Quectel initialization */
-	Quectel_Init();
-
-	/* Change 2 flags */
-	g_bIsMotion = false;
-	g_bIsSetGPS = true;
-	g_bIsStop = false;
-}
-
-void Stop_Callback(void)
-{
-	printf("MOTION NOT DETECTED YET !!\r\n");
-
-	/* Close a Network for MQTT Client */
-	MQTT_Close(0);
-
-	/* Power off Module LTE */
-	LTE_PWRCRL_OFF();
-
-	/* LTE POWER SUPPY DISABLE */
-	LTE_Disable();
-
-	/* Disable GPS Module */
-	gps_power_EnOrDi(DISABLE);
-
-	/* DeInit the RX pin of UART */
-	softUART_DeInit();
-
-	/* Enter sleep mode */
-	printf("Enter Stop Mode:\r\n");
-
-	g_bIsStop = true;
-
-	/* Stop tick count */
-	HAL_SuspendTick();
-
-	/* Enter stop mode after 5 minutes without motion */
-	HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
-}
-
-void Data_Process(void)
-{
-	char test_GNGGA[100] = {0};
-	char test_GNRMC[100] = {0};
-
-	/* If the motion is detected, the GPS will get data and then publish the data to MQTT server */
-
-	/* Ensure that the power of GPS module is turned on */
-	gps_power_EnOrDi(ENABLE);
-
-	printf("\r\n****START THE CONVERSION******\r\n\n");
-
-	/* Receive the string */
-	HAL_UART_Receive(&huart2, (uint8_t*)g_rxBuffer, sizeof(g_rxBuffer), HAL_MAX_DELAY);
-
-	/* 2 strings to split the GNGAA from the NMEA sent from the Quectel L76 LB */
-	printf("%s\r\n\n", g_rxBuffer);
-	printf("%d\r\n\n", strlen(g_rxBuffer));
-
-	/* Parse the NMEA string */
-	gps_read(g_testBuffer2, &g_test_L76, test_GNGGA, test_GNRMC);
-
-	/* Write to Flash, Read from Flash and then publish the infos to MQTT serser */
-	Write_Read_Pub();
-}
-
-
-void System_Initialization(void)
-{
-	/* Flash memory init */
-	Flash_Init();
-
-	/* Acce init */
-	g_u8Test = SC7A20_Init();
-
-	/* Enable UART2 Receive Interrupt */
-	HAL_UART_Receive_IT(&huart2, (uint8_t*)g_rxBuffer, sizeof(g_rxBuffer));
-
-	/* Initialize GPS module */
-	Quectel_Init();
-
-	/* Enable the power of LTE module */
-	Enable_LTE();
-
-	/* Delay to let the LTE modules finishs initializing */
-	HAL_Delay(15000);
-}
 

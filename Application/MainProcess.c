@@ -8,6 +8,28 @@
 
 #include"MainProcess.h"
 
+
+/*************************************************************************************************************
+ * Function name: main_process
+ *
+ * Description:
+ * The flow of the system executes there, following these steps:
+ * 		-Initialize the system
+ * 		-Check whether the motion is detected. If not, enter stop mode.
+ * 		-Motion is detected, wake up the system and reinit some peripherals
+ * 		-Process the data, which is GPS data and then send it to MQTT server so that the user
+ * 		can follow.
+ * 		-If the motion is not detected over 5 minutes, enter the stop mode to save power.
+ *
+ *
+ * Parameter:
+ * 		none
+ *
+ *
+ * Return value:
+ * 		none
+ *
+ *************************************************************************************************************/
 void main_process(void)
 {
 		/* Initialize some peripherals conneted externally to the system */
@@ -51,6 +73,8 @@ void main_process(void)
 				/* Wake up the system if the motion is detected */
 				Wakeup_CallBack();
 			}
+
+			/* Parse the NMEA string, write the data into flash and publish the data to MQTT server */
 			Data_Process();
 		#endif
 	  }
