@@ -373,6 +373,15 @@ response_t HTTP_Get_Range(uint8_t* rspTime,
 uint8_t HTTP_Ping_IP(uint8_t contextID, 
 											  uint8_t* hostName, uint8_t* outputStr);
 												
+/**
+  * @brief  Upload a file into LTE Module
+	* @param  fileName: name of file
+	* @param  fileSize: size of file
+	* @param  strInput: content of file
+  * @retval ERROR or OK
+  */
+response_t FILE_Upload(uint8_t* fileName, uint8_t* fileSize, char* strInput);
+												
 #endif
 
 /*End of file*/

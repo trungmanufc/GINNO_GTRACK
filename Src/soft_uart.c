@@ -61,10 +61,10 @@ void HAL_UART_Emul_RxCpltCallback(UART_Emul_HandleTypeDef *huart)
   * @param  huart: UART Emulation Handle
   * @retval None
   */
-void HAL_UART_Emul_ErrorCallback(UART_Emul_HandleTypeDef *UartEmulHandle)
-{
-		Log_Info((uint8_t*)"BUG\n", 4);
-}
+//void HAL_UART_Emul_ErrorCallback(UART_Emul_HandleTypeDef *UartEmulHandle)
+//{
+//		Log_Info((uint8_t*)"BUG\n", 4);
+//}
 
 /**
   * @brief  Transmit a string data

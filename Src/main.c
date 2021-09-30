@@ -44,9 +44,9 @@
 #define TEST_MQTT 			1
 #define TEST_MQTT_SSL		1
 #define TEST_HTTP 			0
-#define TEST_FLASH 			1
+#define TEST_FLASH 			0
 #define TEST_PWRDOWN    0
-
+#define TEST_FILE				0
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -70,6 +70,68 @@ uint8_t 		g_buff_temp[MAX_SIZE_BUFF] = {0};
 uint8_t 		g_id_msg = 0, g_size_sms = 0, g_size_IP = 0;
 uint8_t 		g_mqtt_isOn = OFF;
 uint32_t 		g_timeNow = 0;
+char* CA = "-----BEGIN CERTIFICATE-----\n\
+MIIDATCCAemgAwIBAgIJAMMAd+6rynzhMA0GCSqGSIb3DQEBCwUAMBcxFTATBgNV\n\
+BAMMDHd3dy5naW5uby5pbzAeFw0yMDAzMDkxMDQ3MzhaFw0zMDAzMDcxMDQ3Mzha\n\
+MBcxFTATBgNVBAMMDHd3dy5naW5uby5pbzCCASIwDQYJKoZIhvcNAQEBBQADggEP\n\
+ADCCAQoCggEBAOxFJgxCHNCffrEzPzsq+Y6ZXf6wtw33idebzzHaZ1gpcf7u3Xri\n\
+JNC8dAON9P/uAEI++C6yOVUypgUK1SmNV3UX1eIlDTpntdGCa9r0+XFhjwp+s1uF\n\
+Yi6CZM2OLefUipdagvXp2mFI/JcJFfMK3mHiFYWF8QzYaWob93hG+5VT/+taTjHh\n\
+O8gecHdxjQ8by0m4ngC3pQQPiSvwPSdJVchIJPcFjtSttSzh2AeiHOnoZgyv3BLm\n\
+EZaXv646E1PkS242HLjwxmxEteZoSUxpYUxHJRrRAAKUXA0cmUJZdYzJ7sOHGgo7\n\
+kPbi1t/VPnLxee97OZcKR3Q8BjVqeTUKmPMCAwEAAaNQME4wHQYDVR0OBBYEFFK8\n\
+2kZgdupcBrRf3axK1DVgXApXMB8GA1UdIwQYMBaAFFK82kZgdupcBrRf3axK1DVg\n\
+XApXMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJtJef7qv/YG7zDN\n\
+ibW/zYXfsRfeGqEDZSm4+6+5B69GW41wcnGbd2NvJ0iN4E+PJBZs6ocjI4QdbFmW\n\
+RYEJUDrl0WuWCnjGbdCgMYOSugFw7IYMhCAi1luFO1A1G3ZLM1E5ZUTQscdigIb4\n\
+K9QmLVbmC+Wqcd0vvlt8v6jH8rnPZQox8z9RclTYwmxXTskCZElP/15vYhHBCG/W\n\
+Ctg+u4jPVdpWgpC+gA8TK2AihJNOAxW7BsWowqFezO1QfjWzQOKrORIaI7QEE1h2\n\
+1hfeFCZ55fw8yTxTFM/gCW8qsDp7Ikk7oMI/BaBteCScV9t1rWNdjyvxP2uYn4Jr\n\
+PDwrTc0=\n-----END CERTIFICATE-----\n";
+char* CK = "-----BEGIN RSA PRIVATE KEY-----\n\
+MIIEpQIBAAKCAQEAytqVnDhHpcGlOykq5AQx2B3HofhPlbVURnkJ74GT5CprDaQJ\n\
+LfwSnNh91v7likeui1hQM+Ev6+JD+DeyjJ9Kk43WHKfxoQoHWbflGZ7LVspnE3yp\n\
+vH/8TLRkXXfKjKvM/hqk/gIZaQGM3nG4vCxMmlHMY/9u3qgZbPCp4qeoaKPsJ/Mv\n\
+kKE+OZc4Oj8FiHtBpqMShSuSnF0+kfmqecP5GpoMmRCrjekzdkATFXOrOP1qvOcj\n\
+s+d9J/fjnLg50wE1Wx80NKeOReeBr4vQik2GRXNyKqxHCvXIFrLyqpAb1EM4qZTK\n\
+6R7ZGgJXtBch263ASUuEwyByugt6dm+RpvduxQIDAQABAoIBAQCosDsHzRlvsufX\n\
+mbVsJjzY7nLLs3VjFoZ9kDv96rB0Zf3eOxHTJrLHsZR8DD4PzupMQGV5rwKt0twY\n\
+9yBIplJa//EUpWhfNbrFFhKzSoTnqKss3lc8ROYnVz+7JlnOvzNaAAhCnrZIxxxB\n\
+AyrPeLs+/VTNt2WYTQvPtxZfQHLgiCtAM7N7IGZb8mNUHrdwOE7CYhA+Qur70wM0\n\
+zuMQOW1Ast6xyyE+TIdRZk1PBKfnmrS9sQbI0yEeWAH/7ExahV7PK/3GeBOwt8Sa\n\
+HxmenMxf1qbZQSLgzeJaTfrRonGxhkX7FnkpNh8qXiZCNRaNKVqW8uVIFhVSCym0\n\
+gfN0g22hAoGBAP1XhWxy07c96dIrWHPh6gIxjj+iRIlNfbEL6JLXm0pED+4wlzJk\n\
+47mkJSJjeGvOtWioMYHwQ11Q/8tYyCzRdxBQj4JZoXLqRRNYOQT+1cWAZks6qcrn\n\
+lOVH2d4WNN0Xdhz+Adt2EUH3wlobJZ60SWFsyajLlbKI8+aK+t2rv17JAoGBAMz7\n\
+c613m2ZVw5U3kLVdYlS824ED1bFRoDuNJmBlBVQeKykLYP2YSJQ+WjXBAiTNtPYO\n\
+/T7F93lgyc4+wBz7hNloLOfGKxtlgF6AkUG7JzU35XhyNK4UnajKU9vVNOKV2d+B\n\
+S7tj7li8nyVxeFdNl1tJBwl3Jeba3GIYv8pEmyIdAoGASRVofiKaBPCtdV3fxH5V\n\
+nZBiMuVC1EEwk1SWIVZljAUae2I1G+qS70j1FXiQkrktCCYNMij3pgHp6OWRyawb\n\
+pu82lyn4M0h16OC4gkJptPIXkHg55zjrcUFLDpBla6qK/k4ghwkGbXtl68yNC72C\n\
+tcJGYpVod/qeMdHCERSsvlECgYEAmcP+0J+qmSe44dSe3w5AVySc3LkNskhzFHkb\n\
+0q+1QZan9dAtX86+k0X60dwJSaZuGy6/VjmXHRw4BlkYMCWVUKlPFkaXy6Nmmn2D\n\
+eXV1Qfy+TI4Pao7YfefY5E2ZsGeM2pbZQqcCAtrr32CxT3xLEBVGDBmu+vAu5f9+\n\
+z7KLVRkCgYEAtvEfSbdfIANpPhLiggmK7ZGzfi5QgEmedoQdIQC6Y8NtXtuagEIX\n\
+bb4OgCtWIxCqsAmdM6OgaxO/lmEEzPXnCBaGeHK+PvuJLHD8kwLc8NGFjNBEFBBu\n\
+VoRxShoEDUDE44K25cfno5303xzCozhgGao2Vu4QVhYIWDS3+H4iE0E=\n\
+-----END RSA PRIVATE KEY-----\n";
+
+char* CC = "-----BEGIN CERTIFICATE-----\n\
+MIICqDCCAZACCQDBPLmAfUDl7zANBgkqhkiG9w0BAQsFADAXMRUwEwYDVQQDDAx3\n\
+d3cuZ2lubm8uaW8wHhcNMjAwMzEwMDMyNDE1WhcNMzAwMzA4MDMyNDE1WjAVMRMw\n\
+EQYDVQQDDAo3MjM0ODMyNDMyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC\n\
+AQEAytqVnDhHpcGlOykq5AQx2B3HofhPlbVURnkJ74GT5CprDaQJLfwSnNh91v7l\n\
+ikeui1hQM+Ev6+JD+DeyjJ9Kk43WHKfxoQoHWbflGZ7LVspnE3ypvH/8TLRkXXfK\n\
+jKvM/hqk/gIZaQGM3nG4vCxMmlHMY/9u3qgZbPCp4qeoaKPsJ/MvkKE+OZc4Oj8F\n\
+iHtBpqMShSuSnF0+kfmqecP5GpoMmRCrjekzdkATFXOrOP1qvOcjs+d9J/fjnLg5\n\
+0wE1Wx80NKeOReeBr4vQik2GRXNyKqxHCvXIFrLyqpAb1EM4qZTK6R7ZGgJXtBch\n\
+263ASUuEwyByugt6dm+RpvduxQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQAuMX33\n\
+GohszeexYFCmN1amyFzkW9HTjcxgfMPpNRUJ6CwCeB4oRiGf9hQjpXnYlrtqnsDm\n\
+UVImm3lxyvNZ+nKWqkcfR91ruX1OYwDOtoYCyXp8YAna0E+Od7la0DSXa+Jd7MHz\n\
+sMcy0IlEbcRbOExALV0bMh3CMjw7nQlam3AOLHvj8L4bJ/M5mE9tGGwBVxv21nPu\n\
+x2/IbcYBTU+qzhWIVL1+ku4kI/sMRnF9lemf807xqcJAF5bY8/GFBfdoS0YRolcW\n\
+iHobF6aWfRLFTuH8GfWHutwb7EqaFCEmBiuzEBU62OA8Y8z1woaACaXspd2KyDlp\n\
+nb9QdJCIGx2jnooz\n-----END CERTIFICATE-----\n";
 
 /*global variables for Flash module*/
 uint8_t 		g_write_buffer[MAX_SIZE_BUFF] = {0};
@@ -104,6 +166,20 @@ static void MX_SPI2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/* USE PRINTF TO PRINT UART LOG BY RECONFIG PUTCHAR FUNCTION */
+#ifdef __GNUC__
+	#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+	#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNU__C */
+
+PUTCHAR_PROTOTYPE
+{
+	HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+
+	return ch;
+}
+
 response_t MQTT_Open_Connect(void)
 {	
 		g_flag = RESPONSE_ERR;
@@ -111,7 +187,8 @@ response_t MQTT_Open_Connect(void)
 		while(g_flag == RESPONSE_ERR)
 		{
 				#if TEST_MQTT_SSL == 1
-				g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+//				g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+				g_flag = MQTT_Open(0, (uint8_t*)"52.76.14.160", 8883);
 				#else
 				g_flag = MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);	
 				#endif	
@@ -120,16 +197,18 @@ response_t MQTT_Open_Connect(void)
 			
 		/*wait to connect to broker*/
 		g_flag = RESPONSE_ERR;
-		g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+//		g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+		g_flag = MQTT_Connect(0, (uint8_t*)"866222052210104", (uint8_t*)"866222052210104", (uint8_t*)"udjrcosvrwcaojci");
 		while(g_flag != RESPONSE_OK)
 		{
 				//Reopen network and reconnect
 				#if TEST_MQTT_SSL == 1			
-				MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+//				MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 8883);
+				MQTT_Open(0, (uint8_t*)"52.76.14.160", 8883);
 				#else
 				MQTT_Open(0, (uint8_t*)"test.mosquitto.org", 1883);
 				#endif
-				g_flag = MQTT_Connect(0, (uint8_t*)"quang", (uint8_t*)"qn052289@gmail.com", (uint8_t*)"182739");
+				g_flag = MQTT_Connect(0, (uint8_t*)"866222052210104", (uint8_t*)"866222052210104", (uint8_t*)"udjrcosvrwcaojci");
 		}
 		g_flag = RESPONSE_ERR; 
 		return RESPONSE_OK;
@@ -311,6 +390,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+#if TEST_FILE == 1
+    FILE_Upload((uint8_t*)"ca.pem", (uint8_t*)"1103", CA);
+		FILE_Upload((uint8_t*)"cc.pem", (uint8_t*)"981", CC);
+		FILE_Upload((uint8_t*)"ck.pem", (uint8_t*)"1679", CK);
+		printf("Upload file finish\r\n");
+#endif
 #if TEST_FLASH == 1
 
 	/* Test Write and Read a byte*/
@@ -394,7 +479,7 @@ int main(void)
 	/*Connect with SSL*/
 	MQTT_SSL_Mode(0, 1, 0);
 	MQTT_SSL_Certificate(0);
-	MQTT_SSL_Level(0, 0);
+	MQTT_SSL_Level(0, 2);
 	MQTT_SSL_Version(0, 4);
 	MQTT_SSL_Ciphersuite(0, (uint8_t*)"0xFFFF");
 	MQTT_SSL_Ignore(0, 1);

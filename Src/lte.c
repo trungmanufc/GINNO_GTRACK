@@ -1,5 +1,7 @@
 #include "lte.h"
 #include <string.h>
+#include <stdlib.h>
+
 
 extern UART_Emul_HandleTypeDef UartEmulHandle;
 extern uint8_t g_recv_byte;
@@ -470,8 +472,10 @@ response_t MQTT_SSL_Certificate(uint8_t sslIndex)
 {
 		HAL_Delay(1000);
 		/*Send CA*/
-		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=cacert,%d,cacert.pem\r", sslIndex);
-		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 33);
+//		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=cacert,%d,cacert.pem\r", sslIndex);
+//		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 33);
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=cacert,%d,ca.pem\r", sslIndex);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 29);
 		if(Recv_Response(&UartEmulHandle, 350) != RESPONSE_OK) 
 		{
 				Log_Info((uint8_t*)"CA_ERR\n", 7);
@@ -479,8 +483,10 @@ response_t MQTT_SSL_Certificate(uint8_t sslIndex)
 		}
 		
 		/*Send CC*/
-		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=clientcert,%d,client.pem\r", sslIndex);
-		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 36);
+//		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=clientcert,%d,client.pem\r", sslIndex);
+//		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 36);
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=clientcert,%d,cc.pem\r", sslIndex);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 32);
 		if(Recv_Response(&UartEmulHandle, 350) != RESPONSE_OK) 
 		{
 				Log_Info((uint8_t*)"CC_ERR\n", 7);
@@ -488,8 +494,10 @@ response_t MQTT_SSL_Certificate(uint8_t sslIndex)
 		}
 		
 		/*Send CK*/
-		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=clientkey,%d,user_key.pem\r", sslIndex);
-		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 37);
+//		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=clientkey,%d,user_key.pem\r", sslIndex);
+//		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 37);
+		sprintf((char*) g_buff_temp, "0AT+QSSLCFG=clientkey,%d,ck.pem\r", sslIndex);
+		Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, 31);
 		if(Recv_Response(&UartEmulHandle, 350) != RESPONSE_OK)
 		{
 				Log_Info((uint8_t*)"CK_ERR\n", 7);
@@ -776,5 +784,33 @@ uint8_t HTTP_Ping_IP(uint8_t contextID,
     }
 		return sizeIP;
 }
+
+/**
+  * @brief  Upload a file into LTE Module
+	* @param  fileName: name of file
+	* @param  fileSize: size of file
+	* @param  strInput: content of file
+  * @retval ERROR or OK
+  */
+response_t FILE_Upload(uint8_t* fileName, uint8_t* fileSize, char* strInput)
+{
+    uint8_t lenBuffTrans = 12 + strlen((char*)fileName) + strlen((char*)fileSize);
+    sprintf((char*)g_buff_temp, "0AT+QFUPL=%s,%s\r", fileName, fileSize);
+    Trans_Data(&UartEmulHandle, (uint8_t*)g_buff_temp, lenBuffTrans);
+		Recv_Response(&UartEmulHandle, 500);
+	  printf("size = %d\r\n",atoi((char*)fileSize));
+    Trans_Data(&UartEmulHandle, (uint8_t*)strInput, atoi((char*)fileSize));
+    if(Recv_Response(&UartEmulHandle, 4000) == RESPONSE_OK)
+		{
+				printf("Upload file OK!\r\n");
+			  return RESPONSE_OK;
+		}
+		else 
+		{
+			  printf("Upload file ERR!\r\n");
+			  return RESPONSE_ERR;
+		}
+}
+	
 
 /*End of file*/

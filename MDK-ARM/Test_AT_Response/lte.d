@@ -36,3 +36,4 @@ test_at_response\lte.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 test_at_response\lte.o: ../Inc/stm32f4xx_hal_uart_emul.h
 test_at_response\lte.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 test_at_response\lte.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+test_at_response\lte.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
