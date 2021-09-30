@@ -57,7 +57,6 @@ void Wakeup_CallBack(void);
 
 
 
-
 /*
  * @brief Puts the system into Stop Mode
  *

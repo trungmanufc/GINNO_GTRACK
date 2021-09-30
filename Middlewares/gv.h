@@ -64,6 +64,7 @@ char* g_testBuffer2 ;
 
 /* The Rx Buffer from the Quectel L76 LB */
 char g_rxBuffer[1000];
+char g_rxBuffer2[1000];
 
 /* Sample NMEA string to test GPS parse function */
 char *g_testBuffer ;

@@ -120,7 +120,7 @@ static void Write_Read_Pub(void)
 		g_gps_data.lat_t.dLatRaw = g_test_L76.dLattitude;
 		g_gps_data.u8Day = g_test_L76.u8Day;
 		g_gps_data.u8Month = g_test_L76.u8Month;
-		g_gps_data.u8Year  = g_year;
+		g_gps_data.u8Year  = g_test_L76.u8Year;
 		g_gps_data.u8Hour = g_test_L76.u8Hour;
 		g_gps_data.u8Minute = g_test_L76.u8Minute;
 		g_gps_data.u8Second = g_test_L76.u8Second;
@@ -226,13 +226,11 @@ void Wakeup_CallBack(void)
 
 	printf("Wake up from stop mode\r\n");
 
+	/* Resume Tick Count */
 	HAL_ResumeTick();
 
 	/* GPS enable */
 	gps_power_EnOrDi(ENABLE);
-
-	/* Re Init GPS UART */
-	HAL_UART_Receive_IT(&huart2, (uint8_t*)g_rxBuffer, sizeof(g_rxBuffer));
 
 	/* LTE RX pin enable */
 	softUART_ReInit();
@@ -259,7 +257,7 @@ void Wakeup_CallBack(void)
 	printf("!!!!MOTION DETECTED !!!!!\n\r");
 
 	/* Quectel initialization */
-	//Quectel_Init();
+	Quectel_Init();
 
 	/* Change 2 flags */
 	g_bIsMotion = false;
@@ -291,8 +289,10 @@ void Stop_Callback(void)
 
 	g_bIsStop = true;
 
+	/* Stop tick count */
 	HAL_SuspendTick();
 
+	/* Enter stop mode after 5 minutes without motion */
 	HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
 }
 
@@ -308,16 +308,20 @@ void Data_Process(void)
 
 	printf("\r\n****START THE CONVERSION******\r\n\n");
 
+	/* Receive the string */
+	HAL_UART_Receive(&huart2, (uint8_t*)g_rxBuffer, sizeof(g_rxBuffer), HAL_MAX_DELAY);
+
 	/* 2 strings to split the GNGAA from the NMEA sent from the Quectel L76 LB */
 	printf("%s\r\n\n", g_rxBuffer);
 	printf("%d\r\n\n", strlen(g_rxBuffer));
 
 	/* Parse the NMEA string */
-	gps_read(g_rxBuffer, &g_test_L76, test_GNGGA, test_GNRMC);
+	gps_read(g_testBuffer2, &g_test_L76, test_GNGGA, test_GNRMC);
 
 	/* Write to Flash, Read from Flash and then publish the infos to MQTT serser */
 	Write_Read_Pub();
 }
+
 
 void System_Initialization(void)
 {
@@ -331,6 +335,12 @@ void System_Initialization(void)
 	HAL_UART_Receive_IT(&huart2, (uint8_t*)g_rxBuffer, sizeof(g_rxBuffer));
 
 	/* Initialize GPS module */
-	//Quectel_Init();
+	Quectel_Init();
+
+	/* Enable the power of LTE module */
+	Enable_LTE();
+
+	/* Delay to let the LTE modules finishs initializing */
+	HAL_Delay(15000);
 }
 

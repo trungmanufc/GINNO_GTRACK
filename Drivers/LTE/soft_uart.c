@@ -43,7 +43,7 @@ void HAL_UART_Emul_RxCpltCallback(UART_Emul_HandleTypeDef *huart)
   */
 void HAL_UART_Emul_ErrorCallback(UART_Emul_HandleTypeDef *UartEmulHandle)
 {
-		Log_Info((uint8_t*)"BUG\n", 4);
+		//Log_Info((uint8_t*)"BUG\n", 4);
 }
 
 /**

@@ -9,7 +9,7 @@
 #define MAINPROCESS_H_
 #include"Middleware.h"
 
-#define TIME_5MINUTE 300000
+#define TIME_5MINUTE 100000
 
 /* !
  * @brief Main function process
